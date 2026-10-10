@@ -49,6 +49,7 @@ Name the requirement IDs in your PR and keep the docs in step with the code.
 - `*.csv` is ignored everywhere, except `tests/fixtures/` and the sample.
 - `scripts/privacy-guard.mjs` is used three ways: as a Claude Code PreToolUse hook (blocks tools and shell
   commands naming private files), in pre-commit (`--staged`) and in CI (`--tracked`).
-- The Claude hook is best effort for shell commands (it reads the words of the command, not paths built at
-  runtime) and only applies to sessions started in this repository. Keep real files out of the repo
+- The Claude hook checks the path fields of each tool call, not the text being written. It is best effort for
+  shell commands (it reads the words of the command, not paths built at runtime) and only applies to sessions
+  started in this repository. Details and limits: `docs/spec/privacy.md`. Keep real files out of the repo
   tree if you want a stronger guarantee.
