@@ -16,7 +16,7 @@
   --space-6: 2rem;
 
   /* Type scale */
-  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font: system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
   --text-sm: 0.875rem;
   --text-md: 1rem;
   --text-lg: 1.25rem;
@@ -30,12 +30,12 @@
 
   /* Colors: light */
   --bg: #f5f6f8;
-  --surface: #ffffff;
+  --surface: #fff;
   --text: #1a1d23;
   --text-muted: #565d6b;
   --border: #c9ced8;
   --accent: #1d4ed8;
-  --accent-text: #ffffff;
+  --accent-text: #fff;
   --focus: #1d4ed8;
   --danger: #b42318;
   --success: #067647;

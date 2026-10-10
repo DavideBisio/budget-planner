@@ -11,12 +11,12 @@
 
 ## Quality gates
 
-| Gate                               | Where                                                  |
-| ---------------------------------- | ------------------------------------------------------ |
-| Privacy (no private files tracked) | pre-commit, CI                                         |
-| ESLint, Prettier                   | pre-commit, CI                                         |
-| Unit tests (vitest)                | pre-commit, CI                                         |
-| E2E mobile + desktop (Playwright)  | CI (`npm run e2e` locally after `npm run e2e:install`) |
+| Gate                                       | Where                                                  |
+| ------------------------------------------ | ------------------------------------------------------ |
+| Privacy (no private files tracked)         | pre-commit, CI                                         |
+| ESLint, html-validate, stylelint, Prettier | pre-commit, CI                                         |
+| Unit tests (vitest)                        | pre-commit, CI                                         |
+| E2E mobile + desktop (Playwright)          | CI (`npm run e2e` locally after `npm run e2e:install`) |
 
 ## Tests
 
