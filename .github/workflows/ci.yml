@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, format, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: No private data tracked
+        run: npm run privacy
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test:coverage
+      - name: Build
+        if: hashFiles('index.html') != ''
+        run: npm run build
+
+  e2e:
+    name: E2E (mobile + desktop)
+    runs-on: ubuntu-latest
+    needs: checks
+    if: hashFiles('tests/e2e/**/*.spec.js') != ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run e2e:install
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
