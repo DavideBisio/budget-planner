@@ -3,7 +3,7 @@
 Personal budget planning app. Offline and privacy-first: import a bank CSV, set parsing, filtering and matching
 rules, turn the result into recurring and one-time cards, and plan the months ahead. Everything stays in your browser.
 
-> Status: rebuild in progress. See the [roadmap](docs/ROADMAP.md) and the
+> Status: in development. See the [roadmap](docs/ROADMAP.md) for what to build next and the
 > [milestones](https://github.com/DavideBisio/budget-planner/milestones).
 
 ## Quick start

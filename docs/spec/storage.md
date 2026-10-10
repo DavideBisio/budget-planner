@@ -14,10 +14,9 @@ Requirements: [req/storage.md](../req/storage.md).
 - One versioned JSON with planner state and configuration; raw bank files only if the user opts in. Restore validates first, then replaces.
 - Issue: #41.
 
-## STOR-5 Legacy migration
+## STOR-5 Dropped
 
-- Reads the old prototype's storage keys when present and converts the old configuration format to schema version 1. Offered once; the old data is never deleted.
-- Issue: #42.
+- No import of data from earlier versions; the app starts empty.
 
 ## STOR-6 Handoff
 

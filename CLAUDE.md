@@ -1,7 +1,6 @@
 # Budget Planner: instructions for Claude
 
 Personal, offline, privacy-first budget planner. Vanilla JS (ES modules) + Vite, no backend, data stays in the browser.
-The previous prototype (`budget.html`, `import.html`) lives outside this repo and is reference only.
 
 ## Privacy (hard rules)
 
