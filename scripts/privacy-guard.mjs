@@ -8,8 +8,9 @@
  *   --tracked   CI: fail if a protected file is tracked anywhere in the repository.
  *
  * Protected: everything under data/ except the README and the two samples, any *.csv outside
- * tests/fixtures/ (and the sample), and .env files. Best effort for shell commands: it inspects
- * the words of the command line, it cannot see paths a script builds at runtime.
+ * tests/fixtures/ (and the sample), and .env files. Only the path fields of a tool call are
+ * checked, not the text it writes. Best effort for shell commands: it inspects the words of the
+ * command line, it cannot see paths a script builds at runtime. Limits: docs/spec/privacy.md.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -29,7 +30,22 @@ export function isProtected(path) {
 
 const WORD_SPLIT = /[\s"'`=;|&,()<>]+/;
 
-/** Protected paths mentioned anywhere in a tool call's input. */
+// Only the fields that say where a tool reads from are checked. Text a tool writes (file content,
+// replacement strings, descriptions) cannot expose a private file, and checking it blocked
+// harmless edits. The search pattern of Grep is an expression, not a path, so it is not checked.
+// A tool that is not listed here is checked on every field.
+const PATH_FIELDS = {
+  Read: ['file_path'],
+  Edit: ['file_path'],
+  Write: ['file_path'],
+  NotebookEdit: ['notebook_path'],
+  Glob: ['pattern', 'path'],
+  Grep: ['path', 'glob'],
+  Bash: ['command'],
+  PowerShell: ['command'],
+};
+
+/** Protected paths mentioned in the path fields of a tool call's input. */
 export function protectedPathsIn(toolName, input) {
   const hits = new Set();
   const visit = value => {
@@ -43,7 +59,9 @@ export function protectedPathsIn(toolName, input) {
     } else if (Array.isArray(value)) value.forEach(visit);
     else if (value && typeof value === 'object') Object.values(value).forEach(visit);
   };
-  visit(input);
+  const fields = PATH_FIELDS[toolName];
+  if (!fields || !input || typeof input !== 'object') visit(input);
+  else for (const field of fields) visit(input[field]);
   return [...hits];
 }
 
