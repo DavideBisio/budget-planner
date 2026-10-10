@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test';
+import { PAGES, expectNoHorizontalOverflow } from './helpers.js';
 
-const pages = ['/index.html', '/import.html'];
-
-for (const path of pages) {
+for (const path of PAGES) {
   test.describe(path, () => {
     test('nav links to both pages and marks the current one', async ({ page }) => {
       await page.goto(path);
@@ -23,10 +22,7 @@ for (const path of pages) {
     test('no horizontal overflow at 320 px', async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 640 });
       await page.goto(path);
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      );
-      expect(overflow).toBeLessThanOrEqual(0);
+      await expectNoHorizontalOverflow(page);
     });
 
     test('dark scheme redefines the background token', async ({ page }) => {
