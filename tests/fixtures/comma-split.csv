@@ -1,0 +1,6 @@
+Booking date,Value date,Debit,Credit,Type,Description
+,,,1000.00,Balance,Opening balance
+2026-01-02,2026-01-02,,1500.00,Salary,Payroll Example Corp ref JAN
+2026-01-04,2026-01-04,420.00,,Transfer,Paid to Sample Landlord ref RENT
+2026-01-09,2026-01-09,19.90,,Card,Paid to Demo Streaming ref SUB
+,,,2060.10,Balance,Closing balance

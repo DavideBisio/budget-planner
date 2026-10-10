@@ -1,0 +1,6 @@
+Registrazione;Valuta;Dare;Avere;Causale;Descrizione
+;;;1000,00;Saldo;Saldo iniziale
+02/01/2026;02/01/2026;;1500,00;Stipendio;Bonifico Esempio Srl rif GEN
+04/01/2026;04/01/2026;420,00;;Bonifico;Pagamento a Locatore Prova rif AFFITTO
+09/01/2026;09/01/2026;19,90;;Carta;Pagamento a Streaming Demo rif ABB
+;;;2060,10;Saldo;Saldo finale

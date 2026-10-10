@@ -2,3 +2,5 @@
 *.png binary
 *.jpg binary
 *.ico binary
+# keep the BOM and CRLF bytes of the encoding fixture exactly as written
+tests/fixtures/bom-crlf.csv -text
