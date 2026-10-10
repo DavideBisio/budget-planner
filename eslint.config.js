@@ -28,6 +28,19 @@ export default [
     },
   },
   {
+    // src/core is pure: no DOM, storage or network, and no imports from the UI (docs/ARCHITECTURE.md).
+    files: ['src/core/**'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        ...['window', 'document', 'localStorage', 'sessionStorage', 'fetch', 'navigator'].map(
+          name => ({ name, message: 'src/core must stay free of browser APIs.' }),
+        ),
+      ],
+      'no-restricted-imports': ['error', { patterns: ['**/ui/**'] }],
+    },
+  },
+  {
     files: ['scripts/**', '*.config.js', 'tests/**'],
     languageOptions: { globals: { ...globals.node } },
   },

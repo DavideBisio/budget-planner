@@ -18,6 +18,26 @@
 | Unit tests (vitest)                | pre-commit, CI                                         |
 | E2E mobile + desktop (Playwright)  | CI (`npm run e2e` locally after `npm run e2e:install`) |
 
+## Tests
+
+| Kind | Where                         | Name                                                        |
+| ---- | ----------------------------- | ----------------------------------------------------------- |
+| Unit | `tests/unit/<module>.test.js` | mirrors `src/core/<module>.js`; one `describe` per function |
+| E2E  | `tests/e2e/<feature>.spec.js` | one spec per page or feature; both projects run it          |
+
+- Test first for anything in `src/core`. Name tests by behaviour ("keeps duplicate rows distinct"), and name the requirement ID in the `describe` when one applies.
+- Core tests need no mocks: functions take their inputs (configuration, dates) as arguments. No network, no clock, no randomness.
+- `src/core` must stay at 90% line coverage or more. `npm run test:coverage` fails below it, locally and in CI.
+- `src/core` is free of browser APIs; ESLint reports `window`, `document`, `localStorage`, `fetch` and imports from `src/ui`.
+- E2E layout checks use the helpers in `tests/e2e/helpers.js`. A new page must be added to `PAGES` there.
+
+### Fixtures
+
+- Fixtures live in `tests/fixtures/` and are **invented**: fictional names, round amounts, no IBAN-like strings, no long digit runs. A unit test scans every fixture and fails on both.
+- Keep each fixture small and aimed at one case. The set covers: comma and semicolon delimiters, decimal point and decimal comma, split debit/credit and a single signed amount, BOM and CRLF, duplicate rows, missing balance rows.
+- `bom-crlf` is marked `-text` in `.gitattributes` so Git keeps its BOM and CRLF bytes.
+- Never copy a real statement into a fixture, not even edited. Extend the invented ones instead.
+
 ## Requirements and specifications
 
 Requirements are in `docs/req/`, specifications in `docs/spec/`, one file per scope (see `docs/README.md`).

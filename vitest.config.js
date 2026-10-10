@@ -6,8 +6,10 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
-      include: ['src/**/*.js'],
+      // The pure logic must be well covered; UI code is checked by the e2e tests.
+      include: ['src/core/**/*.js'],
       reporter: ['text', 'html'],
+      thresholds: { lines: 90 },
     },
   },
 });
