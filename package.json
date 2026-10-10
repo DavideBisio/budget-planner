@@ -12,8 +12,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "npm run lint:js && npm run lint:html && npm run lint:css",
+    "lint:fix": "eslint . --fix && stylelint \"src/**/*.css\" --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -23,14 +23,25 @@
     "e2e:install": "playwright install --with-deps chromium",
     "privacy": "node scripts/privacy-guard.mjs --tracked",
     "check": "npm run privacy && npm run lint && npm run format:check && npm run test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint:js": "eslint .",
+    "lint:html": "html-validate index.html import.html",
+    "lint:css": "stylelint \"src/**/*.css\""
   },
   "lint-staged": {
     "*.{js,mjs,cjs}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,md,html,css,yml,yaml}": "prettier --write"
+    "*.css": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.html": [
+      "html-validate",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": "prettier --write"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -39,9 +50,12 @@
     "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
+    "html-validate": "^11.16.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.10",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard": "^40.0.0",
     "vite": "^8.3.4",
     "vitest": "^5.0.3"
   }
