@@ -1,0 +1,5 @@
+node scripts/privacy-guard.mjs --staged || exit 1
+npx lint-staged || exit 1
+npm run lint || exit 1
+npm run format:check || exit 1
+npm test || exit 1

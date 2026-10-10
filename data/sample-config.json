@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "parse": {
+    "delim": ",",
+    "decimal": ".",
+    "dateFmt": "ymd",
+    "cols": {
+      "date": "Booking date",
+      "value": "Value date",
+      "out": "Debit",
+      "in": "Credit",
+      "amount": "",
+      "causale": "Type",
+      "desc": "Description"
+    },
+    "openingRe": "^opening balance",
+    "closingRe": "^closing balance"
+  },
+  "filter": {
+    "from": "",
+    "to": "",
+    "ownTransfers": true,
+    "own": ["transfer to own account"],
+    "exclude": []
+  },
+  "payees": ["paid to\\s+(.+?)(?:\\s+ref\\b|$)"],
+  "rules": [
+    { "p": "payroll|acme", "cat": "Salary", "kind": "income" },
+    { "p": "landlord|rent", "cat": "Housing", "kind": "" },
+    { "p": "broker|invest", "cat": "Investments", "kind": "saving" },
+    { "p": "streamco|power utility", "cat": "Utilities", "kind": "" },
+    { "p": "market", "cat": "Food & dining", "kind": "" }
+  ],
+  "cats": [
+    "Salary",
+    "Housing",
+    "Utilities",
+    "Food & dining",
+    "Investments",
+    "Other income",
+    "Other expenses",
+    "Own transfers"
+  ]
+}

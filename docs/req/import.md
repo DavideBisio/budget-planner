@@ -1,0 +1,21 @@
+# Requirements: import page
+
+How they are met: [spec/import.md](../spec/import.md). Logic requirements are in [engine](engine.md).
+
+| ID     | Requirement                                                                                                                                                                                       | Status  |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| IMP-1  | The page is a guided sequence, top to bottom: 1 parsing, 2 import, 3 filtering, 4 payee extraction, 5 matching rules, 6 categories, 7 output                                                      | planned |
+| IMP-2  | Each step shows its status; a step that depends on an earlier one explains what it waits for                                                                                                      | planned |
+| IMP-3  | Parsing settings are edited before importing, with a live preview of how the first rows are read                                                                                                  | planned |
+| IMP-4  | Several CSV files can be selected; a summary shows the number of transactions, the number of months, total income, total outcome and whether the balance reconciles                               | planned |
+| IMP-5  | Every pattern field uses a user-friendly input: plain words, lists of words, starts/ends/contains/equals, with live match feedback; real regular expressions remain available as an advanced mode | planned |
+| IMP-6  | Filtering rules (date range, own transfers, exclusions) are editable and show how many rows each removes                                                                                          | planned |
+| IMP-7  | Payee extraction rules are editable, orderable and testable against a transaction                                                                                                                 | planned |
+| IMP-8  | Matching rules are editable and orderable, with category and kind, and show hit counts and unmatched transactions                                                                                 | planned |
+| IMP-9  | Categories can be added, renamed and deleted; rules follow a rename                                                                                                                               | planned |
+| IMP-10 | A result list separates recurring and one-time entries; showing an entry (hover or tap) reveals its input rows, extracted payee, matched rule, category and kind, to debug the configuration      | planned |
+| IMP-11 | A category or kind can be overridden manually per transaction or payee                                                                                                                            | planned |
+| IMP-12 | The output is previewed as planner cards; it can be sent to the planner (replace or merge) or downloaded                                                                                          | planned |
+| IMP-13 | The configuration can be exported to and imported from a file; it never contains transactions                                                                                                     | planned |
+| IMP-14 | Settings persist between visits                                                                                                                                                                   | planned |
+| IMP-15 | The page links to the planner with a "Budget Planner" button                                                                                                                                      | planned |

@@ -1,0 +1,30 @@
+# dependencies / build output
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.vite/
+
+# private data: only the samples and the README are tracked
+data/*
+!data/README.md
+!data/sample-config.json
+!data/sample-bank-report.csv
+
+# bank exports must never be committed, wherever they are (fixtures are fictional and allowed)
+*.csv
+!data/sample-bank-report.csv
+!tests/fixtures/**/*.csv
+
+# secrets and local overrides
+.env
+.env.*
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

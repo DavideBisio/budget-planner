@@ -1,0 +1,19 @@
+Booking date,Value date,Debit,Credit,Type,Description
+,,,2000.00,Balance,Opening balance
+2026-01-02,2026-01-02,,2500.00,Salary,Payroll ACME Corp ref JAN
+2026-01-03,2026-01-03,800.00,,Transfer,Paid to Landlord Rossi ref RENT
+2026-01-05,2026-01-05,12.99,,Card,Paid to StreamCo ref SUB
+2026-01-10,2026-01-10,200.00,,Transfer,Paid to Example Broker ref INVEST
+2026-01-15,2026-01-15,63.40,,Card,Paid to Corner Market ref CARD
+2026-01-20,2026-01-20,300.00,,Transfer,Transfer to own account
+2026-02-02,2026-02-02,,2500.00,Salary,Payroll ACME Corp ref FEB
+2026-02-03,2026-02-03,800.00,,Transfer,Paid to Landlord Rossi ref RENT
+2026-02-05,2026-02-05,12.99,,Card,Paid to StreamCo ref SUB
+2026-02-10,2026-02-10,200.00,,Transfer,Paid to Example Broker ref INVEST
+2026-02-14,2026-02-14,48.10,,Card,Paid to Corner Market ref CARD
+2026-03-02,2026-03-02,,2650.00,Salary,Payroll ACME Corp ref MAR bonus
+2026-03-03,2026-03-03,800.00,,Transfer,Paid to Landlord Rossi ref RENT
+2026-03-05,2026-03-05,12.99,,Card,Paid to StreamCo ref SUB
+2026-03-10,2026-03-10,200.00,,Transfer,Paid to Example Broker ref INVEST
+2026-03-18,2026-03-18,120.00,,Transfer,Paid to Power Utility ref BILL
+,,,6079.53,Balance,Closing balance
