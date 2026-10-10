@@ -1,0 +1,138 @@
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space-4);
+}
+
+/* Field: a label above a control */
+.field {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.field input,
+.field select,
+.field textarea {
+  min-height: var(--tap);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.field .hint {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn.secondary {
+  background: transparent;
+  color: var(--accent);
+}
+
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Step: numbered item of a guided flow */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.step {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: var(--tap) minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.step::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.step[aria-current='step']::before {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+/* Tooltip / popover: opens on tap, hover and keyboard focus (see popover.js) */
+.popover {
+  position: relative;
+  display: inline-block;
+}
+
+.popover-trigger {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--tap);
+  min-height: var(--tap);
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.popover-body {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  left: 0;
+  width: max-content;
+  max-width: min(18rem, calc(100vw - 2 * var(--space-4)));
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: var(--text-sm);
+}
+
+.popover-body[hidden] {
+  display: none;
+}

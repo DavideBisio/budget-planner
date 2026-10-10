@@ -1,0 +1,58 @@
+/* Design tokens (GEN-1, GEN-4). Colors are defined once; the dark scheme redefines them. */
+:root {
+  color-scheme: light dark;
+
+  /* Layout. The two-column breakpoint is 1100px: custom properties cannot be used in
+     media queries, so the value is repeated in layout.css and in tests/e2e/helpers.js. */
+  --tap: 44px;
+  --page-max: 72rem;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* Type scale */
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --leading: 1.5;
+
+  /* Shape */
+  --radius: 0.5rem;
+  --radius-sm: 0.25rem;
+  --shadow: 0 1px 3px rgb(0 0 0 / 15%);
+
+  /* Colors: light */
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --text: #1a1d23;
+  --text-muted: #565d6b;
+  --border: #c9ced8;
+  --accent: #1d4ed8;
+  --accent-text: #ffffff;
+  --focus: #1d4ed8;
+  --danger: #b42318;
+  --success: #067647;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12141a;
+    --surface: #1c1f27;
+    --text: #e8eaee;
+    --text-muted: #a3aab8;
+    --border: #3a3f4b;
+    --accent: #7aa2ff;
+    --accent-text: #0b1020;
+    --focus: #7aa2ff;
+    --danger: #ff8a80;
+    --success: #5fd3a0;
+    --shadow: 0 1px 3px rgb(0 0 0 / 50%);
+  }
+}
