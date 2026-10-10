@@ -6,15 +6,51 @@
     <title>Import · Budget Planner</title>
   </head>
   <body>
-    <header>
-      <nav aria-label="Pages">
+    <header class="site-header">
+      <nav class="site-nav" aria-label="Pages">
         <a href="./index.html">Planner</a>
         <a href="./import.html" aria-current="page">Import</a>
       </nav>
     </header>
-    <main>
+    <main class="page">
       <h1>Import</h1>
-      <p>Import a bank report here.</p>
+      <div class="columns">
+        <div class="stack">
+          <section class="card" aria-labelledby="steps-title">
+            <h2 id="steps-title">Steps</h2>
+            <ol class="steps">
+              <li class="step" aria-current="step">
+                <div>
+                  <strong>Choose a file</strong>
+                  <span class="popover" data-popover>
+                    <button
+                      class="popover-trigger"
+                      type="button"
+                      aria-expanded="false"
+                      aria-controls="tip-file"
+                      aria-label="About this step"
+                    >
+                      ?
+                    </button>
+                    <span class="popover-body" id="tip-file" role="tooltip" hidden>
+                      Files are read in your browser and never uploaded.
+                    </span>
+                  </span>
+                </div>
+              </li>
+              <li class="step">
+                <div><strong>Check the columns</strong></div>
+              </li>
+            </ol>
+          </section>
+        </div>
+        <div class="stack">
+          <section class="card" aria-labelledby="preview-title">
+            <h2 id="preview-title">Preview</h2>
+            <p>The result of the import will appear here.</p>
+          </section>
+        </div>
+      </div>
     </main>
     <script type="module" src="/src/ui/import.js"></script>
   </body>

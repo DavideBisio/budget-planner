@@ -3,18 +3,36 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Budget Planner</title>
+    <title>Planner · Budget Planner</title>
   </head>
   <body>
-    <header>
-      <nav aria-label="Pages">
+    <header class="site-header">
+      <nav class="site-nav" aria-label="Pages">
         <a href="./index.html" aria-current="page">Planner</a>
         <a href="./import.html">Import</a>
       </nav>
     </header>
-    <main>
+    <main class="page">
       <h1>Planner</h1>
-      <p>Your plan will appear here.</p>
+      <div class="columns">
+        <div class="stack">
+          <section class="card" aria-labelledby="inputs-title">
+            <h2 id="inputs-title">Inputs</h2>
+            <div class="field">
+              <label for="salary">Monthly salary</label>
+              <input id="salary" type="text" inputmode="decimal" />
+              <span class="hint">Your plan will appear here.</span>
+            </div>
+            <button class="btn" type="button">Save</button>
+          </section>
+        </div>
+        <div class="stack">
+          <section class="card" aria-labelledby="chart-title">
+            <h2 id="chart-title">Balance</h2>
+            <p>The cumulative chart will appear here.</p>
+          </section>
+        </div>
+      </div>
     </main>
     <script type="module" src="/src/ui/planner.js"></script>
   </body>
