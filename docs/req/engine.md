@@ -12,5 +12,5 @@ Pure logic with no DOM. How they are met: [spec/engine.md](../spec/engine.md).
 | ENG-6  | Matching rules are ordered, first match wins, and assign a category and kind; each result records which rule matched and the raw input row                                                       | done    |
 | ENG-7  | An entry is recurring only if the same amount occurs the same number of times in every month of the full data span; there is no averaging; everything else is a one-time entry in its real month | done    |
 | ENG-8  | Manual overrides by transaction or payee take precedence over rules and survive re-parsing                                                                                                       | done    |
-| ENG-9  | Planner cards are built from the classified transactions; savings are signed (money out adds to savings, money in is a withdrawal)                                                               | planned |
+| ENG-9  | Planner cards are built from the classified transactions; savings are signed (money out adds to savings, money in is a withdrawal)                                                               | done    |
 | ENG-10 | Imported files are stored as raw text and re-parsed whenever the settings change                                                                                                                 | planned |

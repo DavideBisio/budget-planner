@@ -61,7 +61,9 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, apply overrid
 ## ENG-9 Cards and signed savings
 
 - Output: recurring cards and one-time cards by month and category. Saving kind: money out is positive, money in is negative.
-- Issue: #21.
+- `buildCards(detected)` in `src/core/cards.js` takes the output of `detectRecurring` (after overrides) and returns `{recurring, oneTime, totals}`. Each card has `flow` (signed cash movement, in positive) and `amount` (shown figure: income keeps the sign of its flow; expense and saving reverse it, so a saving deposit is positive and a withdrawal negative). Recurring cards have `month: null` and `perMonth`; one-time cards have `month` and `date`. Both list `transactionIds`.
+- `totals`: `byKind` (`income`, `expense`, `saving` as summed amounts, a recurring card counted once per month of the span), `byCategory` (category and kind pairs) and `net` (sum of flows, equal to the statement movements).
+- Issue: #21. Verified by: `tests/unit/cards.test.js` (including a withdrawal and the sample statement).
 
 ## ENG-10 Raw storage and re-parse
 
