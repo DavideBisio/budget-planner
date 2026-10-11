@@ -229,3 +229,17 @@ export function updateEntry(state, id, patch) {
 
 export const removeEntry = (state, id) =>
   mapCards(state, card => ({ ...card, entries: card.entries.filter(entry => entry.id !== id) }));
+
+/** Move an entry to the end of another card (PLAN-7). Same card, or an unknown id: no change. */
+export function moveEntry(state, entryId, toCardId) {
+  const from = state.cards.find(card => card.entries.some(entry => entry.id === entryId));
+  if (!from || from.id === toCardId || !state.cards.some(card => card.id === toCardId))
+    return state;
+  const entry = from.entries.find(item => item.id === entryId);
+  return mapCards(state, card => {
+    if (card.id === from.id)
+      return { ...card, entries: card.entries.filter(e => e.id !== entryId) };
+    if (card.id === toCardId) return { ...card, entries: [...card.entries, entry] };
+    return card;
+  });
+}

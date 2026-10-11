@@ -5,6 +5,7 @@ import {
   addMonths,
   emptyPlanner,
   monthRange,
+  moveEntry,
   project,
   removeCard,
   removeEntry,
@@ -246,5 +247,35 @@ describe('editing cards and entries (PLAN-3)', () => {
     expect(updateEntry(state, 'nope', { label: 'x' })).toEqual(state);
     expect(removeCard(state, 'nope')).toEqual(state);
     expect(addEntry(state, 'nope', { label: 'x', kind: 'expense', amountCents: 1 })).toEqual(state);
+  });
+});
+
+describe('moveEntry (PLAN-7)', () => {
+  it('moves an entry to the end of another card and keeps it as it was', () => {
+    const state = sample();
+    state.cards[0].entries[0].source = 'imported';
+    const moved = moveEntry(state, 'rent', 'c2');
+    expect(moved.cards[0].entries.map(e => e.id)).toEqual(['piggy']);
+    expect(moved.cards[1].entries.map(e => e.id)).toEqual(['trip', 'rent']);
+    expect(moved.cards[1].entries[1]).toEqual(state.cards[0].entries[0]);
+  });
+
+  it('changes the projection: a rent moved to a one-time card is paid once', () => {
+    const moved = moveEntry(sample(), 'rent', 'c2');
+    expect(project(moved).rows.map(r => r.expenses)).toEqual([0, 0, 62000, 0]);
+  });
+
+  it('does not change the state it is given', () => {
+    const state = sample();
+    const copy = structuredClone(state);
+    moveEntry(state, 'rent', 'c2');
+    expect(state).toEqual(copy);
+  });
+
+  it('does nothing for the same card or an unknown entry or card', () => {
+    const state = sample();
+    expect(moveEntry(state, 'rent', 'c1')).toEqual(state);
+    expect(moveEntry(state, 'nope', 'c2')).toEqual(state);
+    expect(moveEntry(state, 'rent', 'nope')).toEqual(state);
   });
 });

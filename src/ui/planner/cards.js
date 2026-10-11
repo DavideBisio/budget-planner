@@ -5,6 +5,7 @@ import { parseCents } from '../../core/money.js';
 import {
   addCard,
   addEntry,
+  moveEntry,
   removeCard,
   removeEntry,
   updateCard,
@@ -12,6 +13,7 @@ import {
 } from '../../core/planner.js';
 import { h, uid } from '../dom.js';
 import { formatCents } from '../format.js';
+import { monthLabel } from '../../core/chart.js';
 import { initPopovers } from '../popover.js';
 
 const KIND_LABEL = { income: 'Income', expense: 'Expense', saving: 'Saving' };
@@ -32,6 +34,7 @@ const badge = (text, kind) => h('span', { class: `badge ${kind}` }, text);
 export function mountCards(root, store) {
   let key = null;
   let focusAfter = null;
+  let dragging = null;
   const nodes = new Map();
 
   const addButtons = h(
@@ -57,8 +60,23 @@ export function mountCards(root, store) {
     ),
   );
   const empty = h('p', { class: 'hint' }, 'No cards yet. Add one, or import a bank statement.');
+  const moved = h('p', { class: 'hint', role: 'status' });
   const list = h('div', { class: 'plan-cards' });
-  root.append(addButtons, empty, list);
+  root.append(addButtons, moved, empty, list);
+
+  const cardName = card => card.title || 'Untitled card';
+
+  function move(entryId, toCardId) {
+    const { plan } = store.get();
+    const from = plan.cards.find(c => c.entries.some(e => e.id === entryId));
+    const to = plan.cards.find(c => c.id === toCardId);
+    if (!from || !to || from.id === to.id) return;
+    const entry = from.entries.find(e => e.id === entryId);
+    store.apply(p => moveEntry(p, entryId, toCardId));
+    moved.textContent = `Moved ${entry.label || 'entry'} to ${cardName(to)}.`;
+    focusAfter = () => nodes.get(toCardId)?.entries.get(entryId)?.move.focus();
+    render(store.get());
+  }
 
   function addNew(type) {
     store.apply(plan => addCard(plan, { type }));
@@ -102,6 +120,12 @@ export function mountCards(root, store) {
       onchange: () => commit(),
     });
     const error = h('span', { class: 'error', id: errorId, hidden: true });
+    const moveSelect = h('select', {
+      class: 'move',
+      onchange: () => {
+        if (moveSelect.value) move(entry.id, moveSelect.value);
+      },
+    });
 
     function commit() {
       const cents = parseCents(amount.value);
@@ -144,9 +168,27 @@ export function mountCards(root, store) {
       { class: 'entry' },
       h(
         'div',
-        { class: 'entry-head' },
+        {
+          class: 'entry-head',
+        },
+        h('span', {
+          class: 'drag-handle',
+          draggable: true,
+          'aria-hidden': 'true',
+          title: 'Drag to another card',
+          ondragstart: event => {
+            dragging = entry.id;
+            event.dataTransfer.setData('text/plain', entry.id);
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setDragImage(item, 0, 0);
+          },
+          ondragend: () => {
+            dragging = null;
+          },
+        }),
         h('span', { class: 'popover', 'data-popover': '' }, trigger, info),
         sourceBadge,
+        moveSelect,
         remove,
       ),
       h(
@@ -161,16 +203,30 @@ export function mountCards(root, store) {
     );
 
     /** Refresh what is derived from the stored entry: badge, details, names of the buttons. */
-    view.sync = (current, owner) => {
+    view.sync = (current, owner, cards) => {
       const name = current.label || 'entry';
       sourceBadge.textContent = SOURCE_LABEL[current.source];
       trigger.setAttribute('aria-label', `About ${name}`);
       remove.textContent = 'Remove';
       remove.setAttribute('aria-label', `Remove entry ${name}`);
+      moveSelect.setAttribute('aria-label', `Move ${name} to`);
+      moveSelect.replaceChildren(
+        h('option', { value: '' }, 'Move to…'),
+        ...cards
+          .filter(other => other.id !== owner.id)
+          .map(other =>
+            h(
+              'option',
+              { value: other.id },
+              `${cardName(other)} (${other.type === 'recurring' ? 'recurring' : `one-time, ${monthLabel(other.month)}`})`,
+            ),
+          ),
+      );
       const when = owner.type === 'recurring' ? 'Every month' : owner.month;
       info.textContent = `${name}: ${KIND_LABEL[current.kind]}, ${current.category || 'no category'}. ${formatCents(current.amountCents)} · ${when}. ${SOURCE_LABEL[current.source]}.`;
     };
     view.label = label;
+    view.move = moveSelect;
     view.item = item;
     return view;
   }
@@ -247,7 +303,21 @@ export function mountCards(root, store) {
     view.title = titleInput;
     view.el = h(
       'article',
-      { class: 'plan-card' },
+      {
+        class: 'plan-card',
+        ondragover: event => {
+          if (dragging) event.preventDefault();
+        },
+        ondragenter: () => dragging && view.el.classList.add('drop'),
+        ondragleave: event => {
+          if (!view.el.contains(event.relatedTarget)) view.el.classList.remove('drop');
+        },
+        ondrop: event => {
+          event.preventDefault();
+          view.el.classList.remove('drop');
+          if (dragging) move(dragging, card.id);
+        },
+      },
       h(
         'div',
         { class: 'plan-card-head' },
@@ -263,13 +333,13 @@ export function mountCards(root, store) {
       entries,
       view.add,
     );
-    view.sync = current => {
-      const name = current.title || 'Untitled card';
+    view.sync = (current, cards) => {
+      const name = cardName(current);
       view.el.setAttribute('aria-label', name);
       sourceBadge.textContent = cardSource(current);
       remove.textContent = 'Delete';
       remove.setAttribute('aria-label', `Delete card ${name}`);
-      for (const entry of current.entries) view.entries.get(entry.id)?.sync(entry, current);
+      for (const entry of current.entries) view.entries.get(entry.id)?.sync(entry, current, cards);
     };
     return view;
   }
@@ -284,7 +354,7 @@ export function mountCards(root, store) {
       initPopovers(list);
     }
     empty.hidden = plan.cards.length > 0;
-    for (const card of plan.cards) nodes.get(card.id).sync(card);
+    for (const card of plan.cards) nodes.get(card.id).sync(card, plan.cards);
     if (focusAfter) {
       const run = focusAfter;
       focusAfter = null;
