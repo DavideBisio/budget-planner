@@ -35,8 +35,9 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurr
 
 ## ENG-5 Payee extraction
 
-- Patterns tried in order, group 1 is the payee. Fallback: Type column, then the first words of the description. A normalised key (uppercase, punctuation removed, first three words) is used for grouping.
-- Issue: #17.
+- Patterns tried in order, group 1 is the payee. Fallback: Type column, then the first words of the description. A normalised key (uppercase, accents and punctuation removed, first three words, sorted so word order does not matter) is used for grouping.
+- `src/core/payee.js`: `extractPayee(tx, patterns)` returns `{name, key, source}` (`pattern`, `type` or `description`); a pattern whose group 1 is empty is skipped; `assignPayees` adds `payee` and `payeeKey` to copies of the transactions; `payeeKey(name)` is exported.
+- Issue: #17. Verified by: `tests/unit/payee.test.js` (including the sample statement).
 
 ## ENG-6 Matching
 
