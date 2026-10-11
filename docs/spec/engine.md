@@ -2,7 +2,7 @@
 
 Requirements: [req/engine.md](../req/engine.md). All code in `src/core`, no DOM, test first.
 
-Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurring, apply overrides, build cards.
+Pipeline: parse, de-duplicate, filter, extract payee, match rules, apply overrides, drop ignored, detect recurring, build cards. Overrides come before recurring detection so that an ignored transaction does not shape the data span or a group (ignoring one payment of a recurring series therefore makes the rest one-time, as the user asked).
 
 ## ENG-1 Configuration
 
@@ -54,8 +54,9 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurr
 
 ## ENG-8 Overrides
 
-- Precedence: transaction override, then payee override, then rules. Overrides are keyed by transaction id and payee key, so they survive re-parsing.
-- Issue: #20.
+- Precedence: transaction override, then payee override, then rules, resolved field by field (`category`, `kind`, `ignore`); `ignore: false` on a transaction opts it back in. Overrides are keyed by transaction id and payee key, so they survive re-parsing.
+- `src/core/overrides.js`: `applyOverrides(transactions, overrides)` adds `ignored` and `override` (`transaction`, `payee` or `null`); `withOverride(overrides, scope, key, patch)` returns an updated copy; `emptyOverrides()`. Shape: `{transactions: {[id]: patch}, payees: {[payeeKey]: patch}}`.
+- Issue: #20. Verified by: `tests/unit/overrides.test.js` (precedence, ignore, re-parse).
 
 ## ENG-9 Cards and signed savings
 
