@@ -29,7 +29,9 @@ Requirements: [req/planner.md](../req/planner.md).
 
 ## Moving entries (PLAN-7)
 
-- Pointer drag and drop on desktop. Every entry also has a "Move to..." menu, which is the path for phones and the keyboard.
+- `moveEntry(state, entryId, toCardId)` puts an entry at the end of another card and keeps its id and source.
+- Pointer drag and drop on desktop: each entry has a drag handle (hidden on touch screens); dropping on a card moves the entry there, and the card is outlined while it is a target.
+- Every entry also has a "Move <entry> to" menu listing the other cards. It is the path for phones and the keyboard. After a move the status line says what moved where, and focus goes to the entry's menu in its new card.
 - Issue: #36.
 
 ## Chart (PLAN-4, 5)
