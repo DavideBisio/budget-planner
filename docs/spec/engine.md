@@ -30,7 +30,8 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurr
 ## ENG-4 Filtering
 
 - Date range is inclusive. Exclusion and own-transfer patterns test the description, case-insensitive. Output: kept rows plus removed rows with the reason.
-- Issue: #16.
+- `filterTransactions(transactions, filter)` in `src/core/filter.js` returns `{kept, removed, counts, examples}`. Checks run in the order range, exclusion, own transfer; a transaction is counted once, under the first reason. `removed` entries are `{tx, reason, pattern?}`, `counts` has `range`, `exclude`, `own` and `total`, `examples` holds up to three removed transactions per reason. Invalid patterns are skipped (validation reports them).
+- Issue: #16. Verified by: `tests/unit/filter.test.js`.
 
 ## ENG-5 Payee extraction
 
