@@ -5,9 +5,11 @@ import { h } from './dom.js';
 import { createPatternInput } from './pattern-input.js';
 
 /**
- * `get()` returns the current patterns, `set(patterns)` stores a new list, `texts()` the
- * descriptions to try them on, `info(pattern, index)` a short text per item. Call `refresh()`
- * whenever the state changes.
+ * `get()` returns the current items, `set(items)` stores a new list, `texts()` the descriptions to
+ * try them on, `info(item, index)` a short text per item. Items are plain pattern strings unless
+ * `pattern(item)`, `withPattern(item, pattern)` and `blank` say how to read, change and create
+ * one (the matching rules also carry a category and a kind); `extra(index)` can add controls
+ * `{node, update(item, index)}` to each row. Call `refresh()` whenever the state changes.
  */
 export function createPatternList({
   label,
@@ -18,6 +20,10 @@ export function createPatternList({
   set,
   texts = () => [],
   info = () => '',
+  pattern = item => item,
+  withPattern = (_, value) => value,
+  blank = '',
+  extra = null,
 }) {
   let items = [];
   const list = h('ol', { class: 'pattern-list' });
@@ -27,7 +33,7 @@ export function createPatternList({
       class: 'btn secondary',
       type: 'button',
       onclick: () => {
-        set([...get(), '']);
+        set([...get(), typeof blank === 'function' ? blank() : blank]);
         items.at(-1)?.input.node.querySelector('select, input')?.focus();
       },
     },
@@ -36,24 +42,25 @@ export function createPatternList({
   const node = h('fieldset', { class: 'group' }, h('legend', {}, label), list, add);
 
   function move(index, by, action) {
-    const patterns = [...get()];
-    const [moved] = patterns.splice(index, 1);
-    patterns.splice(index + by, 0, moved);
-    set(patterns);
+    const moving = [...get()];
+    const [moved] = moving.splice(index, 1);
+    moving.splice(index + by, 0, moved);
+    set(moving);
     const row = items[index + by]?.row;
     const target = row?.querySelector(`[data-action="${action}"]:not([disabled])`);
     (target ?? row?.querySelector('[data-action]:not([disabled])'))?.focus();
   }
 
-  function build(patterns) {
-    items = patterns.map((pattern, index) => {
+  function build(entries) {
+    items = entries.map((item, index) => {
       const input = createPatternInput({
         label: `${label} ${index + 1}`,
-        value: pattern,
+        value: pattern(item),
         capture,
         texts: texts(),
-        onChange: value => set(get().map((p, i) => (i === index ? value : p))),
+        onChange: value => set(get().map((it, i) => (i === index ? withPattern(it, value) : it))),
       });
+      const more = extra?.(index) ?? null;
       const note = h('p', { class: 'hint pattern-info' });
       const button = (action, text, name, onclick) =>
         h(
@@ -85,25 +92,27 @@ export function createPatternList({
         'li',
         { class: 'pattern-item' },
         input.node,
+        more?.node,
         note,
         h('div', { class: 'pattern-controls' }, controls),
       );
-      return { input, row, note };
+      return { input, row, note, more };
     });
     list.replaceChildren(...items.map(i => i.row));
   }
 
   function refresh() {
-    const patterns = get();
-    if (items.length !== patterns.length) build(patterns);
+    const current = get();
+    if (items.length !== current.length) build(current);
     const samples = texts();
     items.forEach((item, index) => {
-      item.input.setValue(patterns[index]);
+      item.input.setValue(pattern(current[index]));
       item.input.setTexts(samples);
-      item.note.textContent = info(patterns[index], index);
+      item.more?.update(current[index], index);
+      item.note.textContent = info(current[index], index);
       if (reorder) {
         item.row.querySelector('[data-action="up"]').disabled = index === 0;
-        item.row.querySelector('[data-action="down"]').disabled = index === patterns.length - 1;
+        item.row.querySelector('[data-action="down"]').disabled = index === current.length - 1;
       }
     });
   }

@@ -3,6 +3,7 @@
 // when what it depends on has changed.
 import { filterTransactions } from '../../core/filter.js';
 import { parseStatement } from '../../core/parser.js';
+import { classifyTransactions } from '../../core/match.js';
 import { assignPayees } from '../../core/payee.js';
 import { errorsIn } from './config-edit.js';
 
@@ -33,6 +34,7 @@ export function createDerive() {
   const flat = memo();
   const filtered = memo();
   const payeed = memo();
+  const classified = memo();
 
   return state => {
     const { config, sources } = state;
@@ -40,6 +42,7 @@ export function createDerive() {
     const parseKey = JSON.stringify(config.parse);
     const filterKey = JSON.stringify(config.filter);
     const payeesKey = JSON.stringify(config.payees);
+    const rulesKey = JSON.stringify(config.rules);
 
     const files = parsed([sources, parseKey], () => {
       const usable = errorsIn(config, 'parse').length === 0;
@@ -57,6 +60,16 @@ export function createDerive() {
       });
     });
     const withPayees = payeed([result, payeesKey], () => assignPayees(result.kept, config.payees));
-    return { ...state, files, transactions, filtered: result, payeed: withPayees };
+    const matched = classified([withPayees, rulesKey], () =>
+      classifyTransactions(withPayees, Array.isArray(config.rules) ? config.rules : []),
+    );
+    return {
+      ...state,
+      files,
+      transactions,
+      filtered: result,
+      payeed: withPayees,
+      classified: matched,
+    };
   };
 }

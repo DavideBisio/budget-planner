@@ -8,6 +8,7 @@ import { createResults } from './import/results.js';
 import { createDerive } from './import/derive.js';
 import { mountFiltering } from './import/filtering.js';
 import { mountPayees } from './import/payees.js';
+import { mountRules } from './import/rules.js';
 import { mountImporting } from './import/importing.js';
 import { createStore } from './import/store.js';
 
@@ -27,3 +28,4 @@ mountParsing(bodies.parsing, store, results);
 mountImporting(bodies.import, store, results);
 mountFiltering(bodies.filtering, store, results);
 mountPayees(bodies.payees, store, results);
+mountRules(bodies.rules, store, results);
