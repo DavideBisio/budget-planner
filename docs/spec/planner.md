@@ -4,7 +4,10 @@ Requirements: [req/planner.md](../req/planner.md).
 
 ## Model (PLAN-1, 2, 4, 5, 6)
 
-- Pure functions in `src/core/planner`: salary per month, recurring cards applied to every month, one-time cards applied to their month, cumulative cash balance, cumulative savings.
+- Pure functions in `src/core/planner.js`: salary per month, recurring cards applied to every month, one-time cards applied to their month, cumulative cash balance, cumulative savings.
+- State (schema version 1): `{salaryCents, start, horizon, cards}`. `start` is the first month shown (YYYY-MM) and `horizon` how many months (default 12). A card is a container: `{id, type: recurring | one-time, title, month, entries}`. An entry is `{id, label, category, kind: income | expense | saving, amountCents, source: imported | manual}`. Entry amounts are what the user sees: income and expenses positive, a saving positive when put aside and negative for a withdrawal.
+- `project(state)` returns one row per month (`salary, income, expenses, saving, net, cash, savings`), totals, and `outside`: the one-time cards whose month is not shown, so the UI can say so instead of dropping them silently.
+- Cash changes by `salary + income - expenses - saving` each month; savings change by the saving amount.
 - Saving subtracts from cash and adds to savings. A negative saving is a withdrawal: cash goes up, savings go down. The model does not clamp; the UI warns when savings drop below zero.
 - Issues: #33, #38.
 
