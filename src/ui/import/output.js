@@ -3,6 +3,7 @@
 import { buildHandoff, describeHandoff } from '../../core/handoff.js';
 import { h, uid } from '../dom.js';
 import { formatCents } from '../format.js';
+import { downloadText } from '../download.js';
 import { sendToPlanner } from '../handoff.js';
 
 const KIND_LABEL = { income: 'Income', expense: 'Expense', saving: 'Saving' };
@@ -67,12 +68,7 @@ export function mountOutput(body, store, results) {
   }
 
   function save() {
-    const blob = new Blob([JSON.stringify(payload(), null, 2)], { type: 'application/json' });
-    const link = h('a', { href: URL.createObjectURL(blob), download: 'planner-cards.json' });
-    document.body.append(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(link.href);
+    downloadText('planner-cards.json', JSON.stringify(payload(), null, 2));
   }
 
   const line = card =>

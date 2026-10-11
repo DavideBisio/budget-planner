@@ -76,9 +76,10 @@ test('settings left and live result right on large screens, one column on phones
 }, info) => {
   const steps = await page.locator('ol.steps').boundingBox();
   const result = await page.locator('#result-empty').boundingBox();
+  const settings = await page.locator('#settings').boundingBox();
   if (info.project.name === 'desktop') {
     expect(result.x).toBeGreaterThan(steps.x + steps.width - 1);
-    expect(Math.abs(result.y - steps.y)).toBeLessThan(80);
+    expect(Math.abs(result.y - settings.y)).toBeLessThan(80);
   } else {
     expect(result.y).toBeGreaterThan(steps.y + steps.height - 1);
   }

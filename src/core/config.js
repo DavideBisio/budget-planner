@@ -2,6 +2,7 @@
  * Configuration (ENG-1): one versioned object holding parsing, filtering, payee extraction,
  * matching rules and categories. Patterns are stored as regular expression strings.
  */
+import { plainRegexError } from './pattern.js';
 
 export const CONFIG_VERSION = 1;
 
@@ -20,7 +21,7 @@ export function patternError(pattern) {
     new RegExp(pattern, 'i');
     return null;
   } catch (error) {
-    return `invalid pattern: ${error.message}`;
+    return `invalid pattern: ${plainRegexError(error)}`;
   }
 }
 
