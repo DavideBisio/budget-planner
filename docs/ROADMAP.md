@@ -28,4 +28,4 @@ order below (issue numbers). Items on the same line can run in parallel.
 5. **M4 Integration**: #39 storage, then #40 handoff, then #41 backup.
 6. **M5 Polish and release**: #43 to #48 in any order, #48 last.
 
-Next step today: **#5, scaffold the app with Vite**.
+Done: M0 and M1. Next step today: **M2, starting with #22 (the import stepper)**.
