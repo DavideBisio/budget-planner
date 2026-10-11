@@ -239,3 +239,19 @@
   color: var(--text);
   font: inherit;
 }
+
+/* Warning about negative savings (PLAN-6): bold text with a symbol, not colour alone */
+.warning {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.warning::before {
+  content: '⚠ ';
+}
+
+.warning[hidden] {
+  display: none;
+}

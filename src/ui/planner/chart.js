@@ -4,6 +4,7 @@
 import { buildChart, monthLabel } from '../../core/chart.js';
 import { h, uid } from '../dom.js';
 import { formatCents } from '../format.js';
+import { savingsWarning } from './summary.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -42,7 +43,8 @@ export function mountChart(root, store) {
     h('summary', {}, 'Show data table'),
     h('div', { class: 'table-wrap', id: tableId }, table),
   );
-  root.append(legend, holder, details);
+  const warning = h('p', { class: 'warning' });
+  root.append(warning, legend, holder, details);
 
   function draw({ projection }) {
     const { rows, totals } = projection;
@@ -51,6 +53,8 @@ export function mountChart(root, store) {
     const chart = buildChart(rows, { width, height });
     const { plot } = chart;
 
+    warning.textContent = savingsWarning(projection);
+    warning.hidden = !warning.textContent;
     const first = monthLabel(rows[0].month);
     const last = monthLabel(rows.at(-1).month);
     const svg = el(

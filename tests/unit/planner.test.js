@@ -279,3 +279,37 @@ describe('moveEntry (PLAN-7)', () => {
     expect(moveEntry(state, 'rent', 'nope')).toEqual(state);
   });
 });
+
+describe('withdrawals (PLAN-6)', () => {
+  const withdrawal = amountCents => {
+    const state = sample();
+    state.cards[0].entries = [entry('w', 'saving', amountCents)];
+    return state;
+  };
+
+  it('a negative saving puts money back into cash and takes it out of savings', () => {
+    const { rows } = project(withdrawal(-30000));
+    expect(rows.map(r => r.savings)).toEqual([-30000, -60000, -90000, -120000]);
+    expect(rows[0].net).toBe(250000 + 30000);
+  });
+
+  it('never clamps savings at zero and reports the first month below zero', () => {
+    const state = sample();
+    state.cards[0].entries = [entry('put', 'saving', 50000)];
+    state.cards[1].entries = [entry('take', 'saving', -170000)]; // taken out in March
+    const { rows, warnings } = project(state);
+    expect(rows.map(r => r.savings)).toEqual([50000, 100000, -20000, 30000]);
+    expect(warnings.savingsBelowZero).toEqual({ month: '2026-03', lowest: -20000 });
+  });
+
+  it('reports the lowest value, not the first', () => {
+    const { warnings } = project(withdrawal(-30000));
+    expect(warnings.savingsBelowZero).toEqual({ month: '2026-01', lowest: -120000 });
+  });
+
+  it('has no warning while savings stay at or above zero', () => {
+    expect(project(sample()).warnings.savingsBelowZero).toBeNull();
+    const zero = withdrawal(0);
+    expect(project(zero).warnings.savingsBelowZero).toBeNull();
+  });
+});
