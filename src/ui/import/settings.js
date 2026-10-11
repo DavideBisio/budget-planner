@@ -2,13 +2,11 @@
 // saving the configuration and the manual changes in the browser between visits.
 import { exportConfig, importConfig } from '../../core/config-file.js';
 import { defaultConfig, migrateConfig, validateConfig } from '../../core/config.js';
+import { SCHEMAS } from '../../core/schemas.js';
 import { emptyOverrides } from '../../core/overrides.js';
 import { h, uid } from '../dom.js';
 import { downloadText } from '../download.js';
 import { load, save } from '../storage.js';
-
-const CONFIG = { version: 1, migrations: {} };
-const OVERRIDES = { version: 1, migrations: {} };
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const validOverrides = value =>
@@ -26,7 +24,7 @@ const MESSAGES = {
 export function loadSettings() {
   const notices = [];
   let config = defaultConfig();
-  const stored = load('config', CONFIG);
+  const stored = load('config');
   if (stored.status === 'ok' || stored.status === 'migrated') {
     const candidate = migrateConfig(stored.data);
     if (validateConfig(candidate).length === 0) config = candidate;
@@ -36,7 +34,7 @@ export function loadSettings() {
   else if (stored.status !== 'empty') notices.push(MESSAGES.unreadable);
 
   let overrides = emptyOverrides();
-  const storedOverrides = load('overrides', OVERRIDES);
+  const storedOverrides = load('overrides');
   if (
     (storedOverrides.status === 'ok' || storedOverrides.status === 'migrated') &&
     validOverrides(storedOverrides.data)
@@ -113,8 +111,9 @@ export function mountSettings(body, store, notices) {
   let saved = { config: store.get().config, overrides: store.get().overrides };
   store.subscribe(({ config, overrides }) => {
     const failed = [];
-    if (config !== saved.config && !save('config', CONFIG.version, config)) failed.push('config');
-    if (overrides !== saved.overrides && !save('overrides', OVERRIDES.version, overrides)) {
+    if (config !== saved.config && !save('config', SCHEMAS.config.version, config))
+      failed.push('config');
+    if (overrides !== saved.overrides && !save('overrides', SCHEMAS.overrides.version, overrides)) {
       failed.push('overrides');
     }
     saved = { config, overrides };

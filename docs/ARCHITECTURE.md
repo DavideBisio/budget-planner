@@ -65,13 +65,13 @@ One module, `src/ui/storage.js` (#39), owns `localStorage`. Nothing else reads o
 | `budget-planner:backup:*`  | pre-migration copies of a value                  | storage |
 
 - Every value is stored as `{ "version": <integer>, "data": <value> }`.
-- Access is wrapped in try/catch. If storage is unavailable or full, the app keeps working in memory and shows a visible notice.
+- Access is wrapped in try/catch. If storage is unavailable or full, the app keeps working in memory and shows a visible notice at the top of the page.
 - "Clear all data" removes every key with the `budget-planner:` prefix after confirmation (STOR-3).
 
 ### Versioning and migration
 
 - Each key has its own version, starting at 1.
-- A migration is a pure function from version n to n+1, living in `src/core/migrations/`. On load, the module applies them in order.
+- A migration is a pure function from version n to n+1, registered with the key's current version in `src/core/schemas.js`. On load, the module applies them in order.
 - Before migrating, the original value is copied to `budget-planner:backup:<key>`. If a migration throws, the original stays in use and the user is told.
 - A value with a version newer than the app understands is left untouched and treated as read-only (the user may have opened an older build).
 - The app starts empty: there is no import of data from earlier versions (STOR-5 is dropped).

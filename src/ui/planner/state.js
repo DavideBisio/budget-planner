@@ -7,7 +7,7 @@ const currentMonth = () => new Date().toISOString().slice(0, 7);
 
 /** The saved plan when there is a usable one, otherwise an empty plan starting this month. */
 export function loadPlanner() {
-  const { status, data } = load('planner', { version: PLANNER_VERSION });
+  const { status, data } = load('planner');
   if ((status === 'ok' || status === 'migrated') && validatePlanner(data).length === 0) return data;
   return emptyPlanner(currentMonth());
 }

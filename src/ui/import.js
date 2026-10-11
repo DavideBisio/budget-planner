@@ -13,12 +13,16 @@ import { mountResult } from './import/result.js';
 import { mountCategories } from './import/categories.js';
 import { mountRules } from './import/rules.js';
 import { mountImporting } from './import/importing.js';
+import { loadFiles, persistFiles } from './import/files-store.js';
 import { createStore } from './store.js';
 
 initPopovers();
 
 const { config, overrides, notices } = loadSettings();
-const store = createStore({ config, sources: [], sample: null, overrides }, createDerive());
+const store = createStore(
+  { config, sources: loadFiles(), sample: null, overrides },
+  createDerive(),
+);
 const bodies = mountStepper(document.getElementById('steps'), store, {
   label: document.getElementById('progress-label'),
   bar: document.querySelector('.progress progress'),
@@ -37,3 +41,4 @@ mountCategories(bodies.categories, store, results);
 mountResult(store, results);
 mountOutput(bodies.output, store, results);
 mountSettings(document.getElementById('settings-body'), store, notices);
+persistFiles(store);
