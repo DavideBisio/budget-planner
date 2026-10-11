@@ -4,7 +4,7 @@ Pure logic with no DOM. How they are met: [spec/engine.md](../spec/engine.md).
 
 | ID     | Requirement                                                                                                                                                                                      | Status  |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| ENG-1  | One versioned configuration holds parsing, filtering, payee extraction, matching rules and categories; it is validated with field-level errors; defaults are sample placeholders                 | planned |
+| ENG-1  | One versioned configuration holds parsing, filtering, payee extraction, matching rules and categories; it is validated with field-level errors; defaults are sample placeholders                 | done    |
 | ENG-2  | Bank CSV files parse according to the settings: delimiter, decimal separator, date format, column names, debit/credit columns or one signed amount, quoting, BOM, line endings                   | planned |
 | ENG-3  | Statement balances reconcile (opening + movements = closing) per file, and consecutive files chain; gaps and overlaps are reported                                                               | planned |
 | ENG-4  | Transactions can be filtered by date range, exclusion patterns and own-account transfer patterns, with counts of what was removed                                                                | planned |
