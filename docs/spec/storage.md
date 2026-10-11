@@ -13,8 +13,11 @@ Requirements: [req/storage.md](../req/storage.md).
 
 ## STOR-4 Backup and restore
 
-- One versioned JSON with planner state and configuration; raw bank files only if the user opts in. Restore validates first, then replaces.
-- Issue: #41.
+- The footer of every page has "Download backup", a checkbox "Include the imported bank files" (off by default, so raw bank text stays out of the file) and "Restore from a backup file".
+- `buildBackup` (`src/core/backup.js`) writes one JSON document: `{app: "budget-planner", version: 1, versions: {<section>: n}, data: {config, overrides, planner, files?}}`. Only sections that exist are written. `versions` is the schema version of each section, so an older backup is migrated on restore.
+- `parseBackup` checks the whole file before anything is written: it must be JSON, from this app and not from a newer backup version; every section is migrated with `unwrap`, then validated (configuration with `validateConfig`, the plan with `validatePlanner`, manual changes and files by shape). Any problem refuses the whole file and lists each one by path. Unknown sections are ignored.
+- Restoring asks first ("replace your current ..."), then `saveAll` writes the sections as one: if any cannot be written, every section goes back to what it held. Sections absent from the file (for example the files) are left as they are. The page reloads afterwards.
+- Issue: #41. Verified by: `tests/unit/backup.test.js`, `tests/unit/storage.test.js`, `tests/e2e/backup.spec.js`.
 
 ## STOR-5 Dropped
 

@@ -5,6 +5,7 @@ import {
   onStorageProblem,
   remove,
   save,
+  saveAll,
   saveEnvelope,
   storedKeys,
 } from '../../src/ui/storage.js';
@@ -139,6 +140,34 @@ describe('remove', () => {
     const refusing = fakeStorage({ removeItem: denied });
     vi.stubGlobal('localStorage', refusing);
     expect(remove('planner')).toBe(false);
+  });
+});
+
+describe('saveAll (STOR-4)', () => {
+  const items = [
+    { name: 'config', version: 1, data: { c: 1 } },
+    { name: 'planner', version: 1, data: { p: 1 } },
+  ];
+
+  it('writes every section', () => {
+    expect(saveAll(items)).toBe(true);
+    expect(load('config').data).toEqual({ c: 1 });
+    expect(load('planner').data).toEqual({ p: 1 });
+  });
+
+  it('puts everything back as it was when one section cannot be written', () => {
+    save('config', 1, { c: 0 });
+    // the planner key holds a value from a newer version, which is never overwritten
+    storage.map.set('budget-planner:planner', JSON.stringify({ version: 9, data: 'future' }));
+    expect(saveAll(items)).toBe(false);
+    expect(load('config').data).toEqual({ c: 0 });
+    expect(JSON.parse(storage.map.get('budget-planner:planner')).data).toBe('future');
+  });
+
+  it('removes a section that did not exist before when it rolls back', () => {
+    storage.map.set('budget-planner:planner', JSON.stringify({ version: 9, data: 'future' }));
+    expect(saveAll(items)).toBe(false);
+    expect(storage.map.has('budget-planner:config')).toBe(false);
   });
 });
 

@@ -3,14 +3,10 @@
 import { exportConfig, importConfig } from '../../core/config-file.js';
 import { defaultConfig, migrateConfig, validateConfig } from '../../core/config.js';
 import { SCHEMAS } from '../../core/schemas.js';
-import { emptyOverrides } from '../../core/overrides.js';
+import { emptyOverrides, isOverrides } from '../../core/overrides.js';
 import { h, uid } from '../dom.js';
 import { downloadText } from '../download.js';
 import { load, save } from '../storage.js';
-
-const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-const validOverrides = value =>
-  isObject(value) && isObject(value.transactions) && isObject(value.payees);
 
 const MESSAGES = {
   unreadable: 'The saved settings could not be read, so the defaults are shown.',
@@ -37,7 +33,7 @@ export function loadSettings() {
   const storedOverrides = load('overrides');
   if (
     (storedOverrides.status === 'ok' || storedOverrides.status === 'migrated') &&
-    validOverrides(storedOverrides.data)
+    isOverrides(storedOverrides.data)
   ) {
     overrides = storedOverrides.data;
   }

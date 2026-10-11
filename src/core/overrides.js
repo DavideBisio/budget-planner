@@ -48,3 +48,9 @@ export function withOverride(overrides, scope, key, patch) {
   else delete entries[key];
   return { ...overrides, [scope]: entries };
 }
+
+const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+/** Whether a value read from storage or a backup has the shape of the manual changes. */
+export const isOverrides = value =>
+  isObject(value) && isObject(value.transactions) && isObject(value.payees);

@@ -1,6 +1,7 @@
 import './styles/main.css';
 import { initPopovers } from './popover.js';
-import { clearAll, onStorageProblem } from './storage.js';
+import { mountBackup } from './backup.js';
+import { onStorageProblem } from './storage.js';
 import { h } from './dom.js';
 
 initPopovers();
@@ -21,25 +22,10 @@ onStorageProblem(({ kind }) => {
   notice.hidden = false;
 });
 
-// Clear all data (STOR-3): everything the app stored in this browser, after a confirmation.
-const clear = h(
-  'button',
-  {
-    class: 'btn secondary',
-    type: 'button',
-    onclick: () => {
-      const ok = window.confirm(
-        'Clear all data stored in this browser: your plan, settings, manual changes and backups? This cannot be undone.',
-      );
-      if (!ok) return;
-      if (clearAll() === false) {
-        notice.textContent = 'This browser did not allow the data to be cleared.';
-        notice.hidden = false;
-        return;
-      }
-      window.location.reload();
-    },
-  },
-  'Clear all data',
-);
-document.querySelector('main')?.after(h('footer', { class: 'site-footer' }, clear));
+// The footer holds the backup, restore and clear-all controls (STOR-3, STOR-4).
+const footer = h('footer', { class: 'site-footer' });
+document.querySelector('main')?.after(footer);
+mountBackup(footer, text => {
+  notice.textContent = text;
+  notice.hidden = false;
+});
