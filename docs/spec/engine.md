@@ -9,7 +9,8 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurr
 - Shape (version 1), shown in `data/sample-config.json`: `parse` (delimiter, decimal, date format, column names, opening/closing patterns), `filter` (from, to, own-transfer toggle, own patterns, exclusions), `payees` (list), `rules` (list of pattern, category, kind), `cats` (list).
 - Patterns are stored as regular expression strings so the file stays portable; the friendly input (IMP-5) generates and reads them.
 - Validation returns a list of `{path, message}`; an invalid pattern is reported, never thrown into the UI.
-- Issue: #13.
+- `src/core/config.js` exports `defaultConfig`, `validateConfig`, `migrateConfig`, `patternError` and `compilePattern`. Patterns are case-insensitive; payee patterns need a capture group; a rule's category must exist in `cats`; kinds are `income`, `saving`, `expense` or empty. A version other than 1 is reported, and `migrateConfig` upgrades older versions step by step (no steps exist yet).
+- Issue: #13. Verified by: `tests/unit/config.test.js`, including `data/sample-config.json`.
 
 ## ENG-2 Parsing
 
