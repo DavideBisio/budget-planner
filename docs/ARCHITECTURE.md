@@ -85,14 +85,16 @@ Written by the import page, read, applied and removed by the planner.
   "version": 1,
   "data": {
     "mode": "replace",
+    "months": ["2026-01", "2026-02"],
     "cards": [
       {
-        "id": "string, stable",
-        "kind": "recurring | one-time",
-        "direction": "in | out",
+        "id": "string, stable and opaque",
+        "type": "recurring | one-time",
+        "kind": "income | expense | saving",
         "category": "string",
         "label": "string",
         "amountCents": 12345,
+        "perMonth": 1,
         "month": "YYYY-MM"
       }
     ]
@@ -100,8 +102,9 @@ Written by the import page, read, applied and removed by the planner.
 }
 ```
 
-- `mode` is `replace` or `merge`. Amounts are integer cents; `saving` cards use a signed amount (money out positive, money in negative) per ENG-9.
-- `month` is present for one-time cards only. Recurring cards apply to every month.
+- `mode` is `replace` or `merge`. `months` lists the months the data covers. Amounts are integer cents as the planner shows them: income and expenses positive, and `saving` positive for money put aside and negative for a withdrawal (ENG-9).
+- `perMonth` (how many times a recurring card happens in each month) is present for recurring cards only; `month` for one-time cards only. Recurring cards apply to every month.
+- `id` is a hash of the card's internal id: the same data gives the same id (merge relies on it) and no bank text appears in the payload. It is built by `buildHandoff` in `src/core/handoff.js`.
 - The planner validates the payload before applying it; an invalid payload is discarded with a message and never partially applied.
 
 ## Build and offline
