@@ -136,3 +136,64 @@
 .popover-body[hidden] {
   display: none;
 }
+
+/* Form groups, errors and plain lists */
+.group {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.group legend {
+  padding: 0 var(--space-2);
+  font-weight: 700;
+}
+
+.error {
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+
+.error[hidden] {
+  display: none;
+}
+
+.field [aria-invalid] {
+  border-color: var(--danger);
+}
+
+.plain {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-5);
+}
+
+.suggestions {
+  margin-bottom: var(--space-4);
+}
+
+/* A wide table scrolls inside its own box, never the page */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table-wrap th,
+.table-wrap td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table-wrap .num {
+  text-align: right;
+  white-space: nowrap;
+}
