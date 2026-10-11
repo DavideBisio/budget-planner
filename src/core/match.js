@@ -4,6 +4,10 @@
  */
 import { compilePattern } from './config.js';
 
+/** Categories for transactions that no rule matches. */
+export const OTHER_INCOME = 'Other income';
+export const OTHER_EXPENSES = 'Other expenses';
+
 const directionKind = amount => (amount > 0 ? 'income' : 'expense');
 
 /**
@@ -22,7 +26,7 @@ export function classify(tx, rules) {
     };
   }
   return {
-    category: tx.amount > 0 ? 'Other income' : 'Other expenses',
+    category: tx.amount > 0 ? OTHER_INCOME : OTHER_EXPENSES,
     kind: directionKind(tx.amount),
     rule: null,
   };
