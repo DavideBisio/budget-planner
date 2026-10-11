@@ -4,7 +4,7 @@ How they are met: [spec/planner.md](../spec/planner.md).
 
 | ID     | Requirement                                                                                             | Status  |
 | ------ | ------------------------------------------------------------------------------------------------------- | ------- |
-| PLAN-1 | The user sets a monthly salary                                                                          | planned |
+| PLAN-1 | The user sets a monthly salary                                                                          | done    |
 | PLAN-2 | Entries live on cards of two kinds: recurring (every month) and one-time (a specific month)             | planned |
 | PLAN-3 | Buttons "+ recurring card" and "+ one-time card" add cards; cards and entries can be edited and deleted | planned |
 | PLAN-4 | A cumulative chart shows the cash balance per month                                                     | planned |

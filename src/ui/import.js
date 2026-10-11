@@ -13,7 +13,7 @@ import { mountResult } from './import/result.js';
 import { mountCategories } from './import/categories.js';
 import { mountRules } from './import/rules.js';
 import { mountImporting } from './import/importing.js';
-import { createStore } from './import/store.js';
+import { createStore } from './store.js';
 
 initPopovers();
 

@@ -13,23 +13,29 @@
       </nav>
     </header>
     <main class="page">
-      <h1>Planner</h1>
+      <div class="page-head">
+        <h1>Planner</h1>
+      </div>
+      <section class="summary" id="summary" aria-label="Balance summary"></section>
       <div class="columns">
         <div class="stack">
           <section class="card" aria-labelledby="inputs-title">
             <h2 id="inputs-title">Inputs</h2>
-            <div class="field">
-              <label for="salary">Monthly salary</label>
-              <input id="salary" type="text" inputmode="decimal" />
-              <span class="hint">Your plan will appear here.</span>
-            </div>
-            <button class="btn" type="button">Save</button>
+            <div id="inputs"></div>
+          </section>
+          <section class="card" aria-labelledby="cards-title">
+            <h2 id="cards-title">Cards</h2>
+            <div id="cards"></div>
           </section>
         </div>
         <div class="stack">
           <section class="card" aria-labelledby="chart-title">
-            <h2 id="chart-title">Balance</h2>
-            <p>The cumulative chart will appear here.</p>
+            <h2 id="chart-title">Balance chart</h2>
+            <div id="chart"></div>
+          </section>
+          <section class="card" aria-labelledby="totals-title">
+            <h2 id="totals-title">Totals</h2>
+            <div id="totals"></div>
           </section>
         </div>
       </div>
