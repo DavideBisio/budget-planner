@@ -39,6 +39,7 @@
   --focus: #1d4ed8;
   --danger: #b42318;
   --success: #067647;
+  --mark: #ffe58f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -53,6 +54,7 @@
     --focus: #7aa2ff;
     --danger: #ff8a80;
     --success: #5fd3a0;
+    --mark: #5c4b00;
     --shadow: 0 1px 3px rgb(0 0 0 / 50%);
   }
 }

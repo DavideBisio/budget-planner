@@ -58,11 +58,20 @@ function requiredColumns(cols) {
 
 /**
  * Parse one statement file.
- * Returns `{file, transactions, opening, closing, warnings, errors}`. `errors` (a missing
+ * Returns `{file, transactions, descriptions, opening, closing, warnings, errors}`; `descriptions`
+ * lists every row's description, balance rows included, for testing patterns (IMP-5). `errors` (a missing
  * column, an empty file) mean nothing was parsed; `warnings` list rows that were skipped.
  */
 export function parseStatement(text, parse, file = 'statement') {
-  const result = { file, transactions: [], opening: null, closing: null, warnings: [], errors: [] };
+  const result = {
+    file,
+    transactions: [],
+    descriptions: [],
+    opening: null,
+    closing: null,
+    warnings: [],
+    errors: [],
+  };
   const rows = parseCsv(text, parse.delim);
   if (!rows.length) {
     result.errors.push({ file, column: '', message: `${file}: the file is empty` });
@@ -116,6 +125,7 @@ export function parseStatement(text, parse, file = 'statement') {
   rows.slice(headerAt + 1).forEach((row, i) => {
     const rowNumber = headerAt + 2 + i;
     const desc = cell(row, 'desc');
+    if (desc) result.descriptions.push(desc);
     const isOpening = openingRe?.test(desc);
     const isClosing = !isOpening && closingRe?.test(desc);
     if (isOpening || isClosing) {

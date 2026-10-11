@@ -27,7 +27,9 @@ Requirements: [req/import.md](../req/import.md).
 - Feedback: match count against the imported descriptions, highlighted matches, a few matching and non-matching examples, plain-language errors, a read-only preview of the generated regex.
 - Payee helpers: "text between X and Y", "text after X".
 - The stored value stays a regex string (ENG-1). Reading a stored regex picks the closest mode, else advanced.
-- Issue: #25. Verified by: unit tests for build, parse back, escape, errors; e2e for the feedback.
+- Logic lives in `src/core/pattern.js` (unit tested: `buildPattern`, `parsePattern`, `buildCapture`, `parseCapture`, `explainPatternError`, `testPattern`); the DOM component is `src/ui/pattern-input.js`. Explanations of invalid expressions map the engine message to plain language and never show it raw. The step list stays the same size: the balance row fields of step 1 already use the component.
+- Decision: there is no case-sensitive toggle. The configuration stores only the expression and the engine always ignores case (ENG-1), so a toggle would have nothing to store. Revisit with a config change if it is ever needed.
+- Issue: #25. Verified by: unit tests for build, parse back, escape, errors, matching; e2e in `tests/e2e/pattern-input.spec.js`.
 
 ## IMP-6 to IMP-9 Rule editors
 
