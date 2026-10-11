@@ -338,3 +338,11 @@ mark {
   height: var(--tap);
   margin: 0;
 }
+
+/* Disclosure summaries are touch targets too */
+summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  cursor: pointer;
+}

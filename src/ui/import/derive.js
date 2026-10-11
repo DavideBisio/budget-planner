@@ -3,6 +3,7 @@
 // when what it depends on has changed.
 import { filterTransactions } from '../../core/filter.js';
 import { parseStatement } from '../../core/parser.js';
+import { assignPayees } from '../../core/payee.js';
 import { errorsIn } from './config-edit.js';
 
 const empty = name => ({
@@ -31,12 +32,14 @@ export function createDerive() {
   const parsed = memo();
   const flat = memo();
   const filtered = memo();
+  const payeed = memo();
 
   return state => {
     const { config, sources } = state;
     // The config object is replaced on every edit, so the dependency is the relevant section as text.
     const parseKey = JSON.stringify(config.parse);
     const filterKey = JSON.stringify(config.filter);
+    const payeesKey = JSON.stringify(config.payees);
 
     const files = parsed([sources, parseKey], () => {
       const usable = errorsIn(config, 'parse').length === 0;
@@ -53,6 +56,7 @@ export function createDerive() {
         to: ISO.test(to) ? to : '',
       });
     });
-    return { ...state, files, transactions, filtered: result };
+    const withPayees = payeed([result, payeesKey], () => assignPayees(result.kept, config.payees));
+    return { ...state, files, transactions, filtered: result, payeed: withPayees };
   };
 }
