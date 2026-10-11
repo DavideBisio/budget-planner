@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { addMonths, emptyPlanner, monthRange, project } from '../../src/core/planner.js';
+import {
+  addMonths,
+  emptyPlanner,
+  monthRange,
+  project,
+  validatePlanner,
+} from '../../src/core/planner.js';
 
 // Fictional sample plan: salary 2500.00, rent 420.00 every month, a 200.00 holiday in March,
 // 100.00 put into savings every month.
@@ -105,5 +111,43 @@ describe('project (PLAN-1, 2, 4, 5)', () => {
     const copy = structuredClone(state);
     project(state);
     expect(state).toEqual(copy);
+  });
+});
+
+describe('validatePlanner', () => {
+  it('accepts the sample plan and an empty plan', () => {
+    expect(validatePlanner(sample())).toEqual([]);
+    expect(validatePlanner(emptyPlanner('2026-01'))).toEqual([]);
+  });
+
+  it('names what is wrong, with a path', () => {
+    const state = sample({ salaryCents: 12.5, start: '2026-13', horizon: 0 });
+    const paths = validatePlanner(state).map(p => p.path);
+    expect(paths).toEqual(expect.arrayContaining(['salaryCents', 'start', 'horizon']));
+  });
+
+  it('checks cards and entries', () => {
+    const state = sample();
+    state.cards[0].type = 'weekly';
+    state.cards[1].month = null;
+    state.cards[1].entries[0].kind = 'gift';
+    state.cards[1].entries[0].amountCents = 'ten';
+    const paths = validatePlanner(state).map(p => p.path);
+    expect(paths).toEqual(
+      expect.arrayContaining([
+        'cards[0].type',
+        'cards[1].month',
+        'cards[1].entries[0].kind',
+        'cards[1].entries[0].amountCents',
+      ]),
+    );
+  });
+
+  it('rejects duplicate ids and things that are not objects', () => {
+    const state = sample();
+    state.cards[1].entries[0].id = 'rent';
+    expect(validatePlanner(state).map(p => p.path)).toContain('cards[1].entries[0].id');
+    expect(validatePlanner(null)).toHaveLength(1);
+    expect(validatePlanner({ ...sample(), cards: 'none' }).map(p => p.path)).toContain('cards');
   });
 });

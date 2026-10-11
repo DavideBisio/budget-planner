@@ -13,7 +13,9 @@ Requirements: [req/planner.md](../req/planner.md).
 
 ## Layout (GEN-1, GEN-2 applied)
 
-- Large screens: inputs and cards left, chart and totals right. Phones: single column with a sticky balance summary.
+- Large screens: inputs and cards left, chart and totals right. Phones: single column with a sticky balance summary (cash and savings at the end of the shown months); from 1100 px the summary is static because the chart is in view.
+- Inputs: monthly salary (text, parsed by `parseCents`; an invalid value is explained and not used), first month (defaults to the current month) and months shown (6, 12, 24 or 36). Every change is saved under `budget-planner:planner`.
+- The store is shared with the import page (`src/ui/store.js`); planner modules live in `src/ui/planner/`.
 - Issue: #34.
 
 ## Cards (PLAN-3, 8, 9)

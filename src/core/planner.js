@@ -89,3 +89,62 @@ export function project(state) {
   });
   return { rows, totals: { ...totals, cash, savings }, outside };
 }
+
+const KINDS = ['income', 'expense', 'saving'];
+const TYPES = ['recurring', 'one-time'];
+const SOURCES = ['imported', 'manual'];
+const isMonth = value => typeof value === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
+const isText = value => typeof value === 'string' && value !== '';
+
+/**
+ * Check a planner state, for example one read from storage or from a backup file. Returns a list
+ * of `{path, message}` and never throws; an empty list means the state can be used.
+ */
+export function validatePlanner(state) {
+  const problems = [];
+  const fail = (path, message) => problems.push({ path, message });
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    fail('', 'The planner state must be an object');
+    return problems;
+  }
+  if (!Number.isInteger(state.salaryCents)) fail('salaryCents', 'The salary must be whole cents');
+  if (!isMonth(state.start)) fail('start', 'The first month must look like 2026-01');
+  if (!Number.isInteger(state.horizon) || state.horizon < 1 || state.horizon > 120) {
+    fail('horizon', 'The number of months must be between 1 and 120');
+  }
+  if (!Array.isArray(state.cards)) {
+    fail('cards', 'The cards must be a list');
+    return problems;
+  }
+  const ids = new Set();
+  const unique = (path, id) => {
+    if (!isText(id)) fail(path, 'An id is required');
+    else if (ids.has(id)) fail(path, `The id "${id}" is used twice`);
+    else ids.add(id);
+  };
+  state.cards.forEach((card, i) => {
+    const at = `cards[${i}]`;
+    unique(`${at}.id`, card?.id);
+    if (!TYPES.includes(card?.type)) fail(`${at}.type`, 'The type must be recurring or one-time');
+    if (typeof card?.title !== 'string') fail(`${at}.title`, 'The title must be text');
+    if (card?.type === 'one-time' && !isMonth(card.month)) {
+      fail(`${at}.month`, 'A one-time card needs a month such as 2026-03');
+    }
+    if (!Array.isArray(card?.entries)) {
+      fail(`${at}.entries`, 'The entries must be a list');
+      return;
+    }
+    card.entries.forEach((entry, j) => {
+      const path = `${at}.entries[${j}]`;
+      unique(`${path}.id`, entry?.id);
+      if (typeof entry?.label !== 'string') fail(`${path}.label`, 'The label must be text');
+      if (!KINDS.includes(entry?.kind))
+        fail(`${path}.kind`, 'The kind must be income, expense or saving');
+      if (!Number.isInteger(entry?.amountCents))
+        fail(`${path}.amountCents`, 'The amount must be whole cents');
+      if (!SOURCES.includes(entry?.source))
+        fail(`${path}.source`, 'The source must be imported or manual');
+    });
+  });
+  return problems;
+}
