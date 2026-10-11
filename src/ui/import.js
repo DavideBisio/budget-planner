@@ -6,6 +6,7 @@ import { mountStepper } from './import/stepper.js';
 import { mountParsing } from './import/parsing.js';
 import { createResults } from './import/results.js';
 import { createDerive } from './import/derive.js';
+import { mountFiltering } from './import/filtering.js';
 import { mountImporting } from './import/importing.js';
 import { createStore } from './import/store.js';
 
@@ -23,3 +24,4 @@ const results = createResults(
 );
 mountParsing(bodies.parsing, store, results);
 mountImporting(bodies.import, store, results);
+mountFiltering(bodies.filtering, store, results);
