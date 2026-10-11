@@ -4,9 +4,9 @@ Requirements: [req/import.md](../req/import.md).
 
 ## IMP-1 and IMP-2 Guided sequence
 
-- One ordered list of seven step sections; DOM order equals the order in the requirement. A step header shows number, title, one-line purpose and a status badge (todo, valid, needs attention).
-- Steps 3 to 7 are disabled with an explanation until steps 1 and 2 are valid. On large screens the settings are in the left column and the live result in the right column; on phones steps collapse and expand.
-- Issue: #22. Verified by: e2e on the DOM order and the status changes.
+- One ordered list of seven step sections; DOM order equals the order in the requirement. A step header shows number, title, one-line purpose and a status badge: To do, Ready, Needs attention, or Waiting. Status is derived, never stored: `stepStatuses` in `src/core/steps.js` (unit tested) from the configuration validation and the imported files.
+- Step 2 waits for step 1; steps 3 to 7 are disabled with an explanation of what they wait for until steps 1 and 2 are valid. Each step is a button that collapses and expands its body; a progress bar (sticky on phones) counts the ready steps. Step bodies are mounted by their own issues (#23 onwards). On large screens the settings are in the left column and the live result in the right column; on phones steps collapse and expand.
+- Issue: #22. Verified by: unit tests on the statuses; e2e on the DOM order, badges, disabled steps, collapse, sticky progress and layout (`tests/e2e/stepper.spec.js`). E2E of status changes on user input arrives with the first editable step (#23, #24).
 
 ## IMP-3 Parsing step
 
