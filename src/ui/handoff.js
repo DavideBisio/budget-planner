@@ -1,13 +1,8 @@
 // Hands the payload to the planner through the browser's own storage (STOR-6): same browser, no
-// server. This is the only place the import page writes it; #39 moves it into the storage module.
-const KEY = 'budget-planner:handoff';
+// server. The payload is already an envelope ({version, data}).
+import { saveEnvelope } from './storage.js';
 
 /** Store the payload for the planner. Returns false when the browser refuses (full or disabled). */
 export function sendToPlanner(payload) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(payload));
-    return true;
-  } catch {
-    return false;
-  }
+  return saveEnvelope('handoff', payload);
 }

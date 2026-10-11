@@ -24,6 +24,11 @@ describe('patternError and compilePattern (ENG-1)', () => {
     expect(compilePattern('(unclosed')).toBeNull();
   });
 
+  it('explains an invalid expression in plain language, not with the engine message', () => {
+    expect(patternError('(unclosed')).toMatch(/never closed/i);
+    expect(patternError('(unclosed')).not.toMatch(/regular expression|SyntaxError/i);
+  });
+
   it('rejects non-strings and empty patterns', () => {
     expect(patternError(42)).not.toBeNull();
     expect(patternError('')).not.toBeNull();

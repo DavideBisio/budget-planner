@@ -136,18 +136,22 @@ const EXPLANATIONS = [
   [/range out of order/, 'A range such as z-a is in the wrong order; write it as a-z.'],
 ];
 
+/** The engine's error for a bad regular expression, as a plain-language sentence. */
+export function plainRegexError(error) {
+  const message = String(error?.message ?? error).toLowerCase();
+  return (
+    EXPLANATIONS.find(([test]) => test.test(message))?.[1] ??
+    'This is not a valid pattern. Check the brackets and special characters, or use a simpler mode.'
+  );
+}
+
 /** A plain-language message for a pattern that cannot be used, or null when it is fine. */
 export function explainPatternError(pattern, { capture = false } = {}) {
   if (typeof pattern !== 'string' || pattern === '') return 'Enter something to look for.';
   try {
     new RegExp(pattern, 'i');
   } catch (error) {
-    const message = error.message.toLowerCase();
-    const found = EXPLANATIONS.find(([test]) => test.test(message));
-    return (
-      found?.[1] ??
-      'This is not a valid pattern. Check the brackets and special characters, or use a simpler mode.'
-    );
+    return plainRegexError(error);
   }
   if (capture && new RegExp(`${pattern}|`, 'i').exec('').length < 2) {
     return 'Put the part you want to keep in a group of brackets, for example (.+).';

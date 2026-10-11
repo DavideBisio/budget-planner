@@ -1,7 +1,5 @@
 import './shell.js';
 import './styles/main.css';
-import { defaultConfig } from '../core/config.js';
-import { emptyOverrides } from '../core/overrides.js';
 import { initPopovers } from './popover.js';
 import { mountStepper } from './import/stepper.js';
 import { mountParsing } from './import/parsing.js';
@@ -9,6 +7,7 @@ import { createResults } from './import/results.js';
 import { createDerive } from './import/derive.js';
 import { mountFiltering } from './import/filtering.js';
 import { mountPayees } from './import/payees.js';
+import { loadSettings, mountSettings } from './import/settings.js';
 import { mountOutput } from './import/output.js';
 import { mountResult } from './import/result.js';
 import { mountCategories } from './import/categories.js';
@@ -18,10 +17,8 @@ import { createStore } from './import/store.js';
 
 initPopovers();
 
-const store = createStore(
-  { config: defaultConfig(), sources: [], sample: null, overrides: emptyOverrides() },
-  createDerive(),
-);
+const { config, overrides, notices } = loadSettings();
+const store = createStore({ config, sources: [], sample: null, overrides }, createDerive());
 const bodies = mountStepper(document.getElementById('steps'), store, {
   label: document.getElementById('progress-label'),
   bar: document.querySelector('.progress progress'),
@@ -39,3 +36,4 @@ mountRules(bodies.rules, store, results);
 mountCategories(bodies.categories, store, results);
 mountResult(store, results);
 mountOutput(bodies.output, store, results);
+mountSettings(document.getElementById('settings-body'), store, notices);
