@@ -28,7 +28,7 @@ Requirements: [req/privacy.md](../req/privacy.md).
 ## PRIV-4 Fictional fixtures
 
 - Fixtures live in `tests/fixtures/`. A test scans them for IBAN-like and long digit patterns.
-- Issue: #9.
+- Issue: #9. Verified by: `tests/unit/fixtures.test.js`.
 
 ## PRIV-5 Data stays in the browser
 
