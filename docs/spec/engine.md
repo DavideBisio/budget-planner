@@ -67,5 +67,5 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, apply overrid
 
 ## ENG-10 Raw storage and re-parse
 
-- Only raw text is persisted for imported files; everything else is derived on every settings change.
-- Issues: #24, #39.
+- Only raw text is persisted for imported files (key `files`: a list of `{name, text}`, written by `src/ui/import/files-store.js` whenever the list changes and read on the next visit); everything else is derived on every settings change.
+- Issues: #24, #39. Verified by: `tests/e2e/storage-files.spec.js`.

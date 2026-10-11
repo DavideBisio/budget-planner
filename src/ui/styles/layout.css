@@ -75,3 +75,26 @@
 a.btn {
   text-decoration: none;
 }
+
+/* Storage problems and the footer with clear-all (STOR-1, STOR-3) */
+.notice {
+  width: min(var(--page-max), calc(100% - 2 * var(--space-4)));
+  margin: var(--space-2) auto 0;
+  padding: var(--space-3) var(--space-4);
+  box-sizing: border-box;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.notice[hidden] {
+  display: none;
+}
+
+.site-footer {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-4);
+}

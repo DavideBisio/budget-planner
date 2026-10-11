@@ -52,7 +52,7 @@ Requirements: [req/import.md](../req/import.md).
 
 - Export writes the versioned configuration only (sections `parse`, `filter`, `payees`, `rules`, `cats` and the version), never transactions or imported files. Import validates (ENG-1), upgrades older versions, and lists problems by field path with the same plain-language messages as the pattern input; nothing changes when there are problems. Logic: `src/core/config-file.js` (unit tested, includes the sample file); UI: the settings card in `src/ui/import/settings.js`.
 - The configuration and the manual changes are saved in the browser after every edit (keys `config` and `overrides`, each wrapped as `{version, data}`) and loaded on the next visit. `src/core/envelope.js` (unit tested) reads an envelope and applies migrations in order; `src/ui/storage.js` is the only code that touches `localStorage` (the handoff goes through it too). A value from a newer version is left untouched and the user is told that changes will not be saved; an unreadable value falls back to the defaults with a notice; a migrated value is first copied to a backup key.
-- Still to come in #39: clear-all, the visible notice for full storage in the other pages, persisting the imported files (ENG-10) and the planner state.
+- The notice for full or unavailable storage, clear-all, the imported files and the planner state were added in #39 (see spec/storage.md).
 - Issues: #32, #39. Verified by: unit tests; e2e in `tests/e2e/settings.spec.js`.
 
 ## IMP-15 Navigation
