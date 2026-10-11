@@ -5,11 +5,13 @@ import { initPopovers } from './popover.js';
 import { mountStepper } from './import/stepper.js';
 import { mountParsing } from './import/parsing.js';
 import { createResults } from './import/results.js';
+import { createDerive } from './import/derive.js';
+import { mountImporting } from './import/importing.js';
 import { createStore } from './import/store.js';
 
 initPopovers();
 
-const store = createStore({ config: defaultConfig(), files: [], sample: null });
+const store = createStore({ config: defaultConfig(), sources: [], sample: null }, createDerive());
 const bodies = mountStepper(document.getElementById('steps'), store, {
   label: document.getElementById('progress-label'),
   bar: document.querySelector('.progress progress'),
@@ -20,3 +22,4 @@ const results = createResults(
   document.getElementById('result-empty'),
 );
 mountParsing(bodies.parsing, store, results);
+mountImporting(bodies.import, store, results);

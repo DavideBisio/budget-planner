@@ -102,6 +102,9 @@ function previewTable(result) {
   );
 }
 
+/** The text to preview and to sniff: the chosen sample, else the first imported file. */
+const subjectOf = ({ sample, sources }) => sample ?? sources[0] ?? null;
+
 export function mountParsing(body, store, results) {
   const set = (path, value) => updateConfig(store, ['parse', ...path], value);
 
@@ -171,7 +174,9 @@ export function mountParsing(body, store, results) {
   const preview = results.card('parsing', 'Parsing preview');
   let suggestedFor = null;
 
-  function renderSuggestions({ sample, config }) {
+  function renderSuggestions(state) {
+    const { config } = state;
+    const sample = subjectOf(state);
     if (!sample) {
       suggestions.replaceChildren();
       suggestedFor = null;
@@ -218,7 +223,9 @@ export function mountParsing(body, store, results) {
     );
   }
 
-  function renderPreview({ sample, config }) {
+  function renderPreview(state) {
+    const { config } = state;
+    const sample = subjectOf(state);
     if (!sample) {
       results.show('parsing', false);
       return;

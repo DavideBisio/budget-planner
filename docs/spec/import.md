@@ -18,7 +18,8 @@ Requirements: [req/import.md](../req/import.md).
 ## IMP-4 Import step and summary
 
 - File picker is the main path; drag and drop is an extra on desktop. Summary text: N transactions over M months, total income, total outcome, balance reconciles (per file and across files).
-- Issue: #24.
+- `summarizeImport` in `src/core/summary.js` (unit tested) builds the totals and the balance check from the parsed files. The raw text of every file stays in the page state and is re-parsed whenever the parsing settings change; files with the same name get a numbered suffix. Nothing is sent anywhere.
+- Issue: #24. Verified by: unit tests; e2e in `tests/e2e/import-files.spec.js` (totals, removal, mismatch, re-parse, drop, no external request).
 
 ## IMP-5 Friendly pattern input
 
