@@ -49,7 +49,8 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurr
 
 - Group by direction, counterparty key and amount in cents. Recurring if the group has the same count in every month of the data span and the span has at least two months. Card amount = amount x count per month. No averaging, no tolerance.
 - Everything else is one-time with its real month.
-- Issue: #19. Verified by: varying salary stays one-time; a missing month breaks recurrence; two equal payments per month give double amount.
+- The data span runs from the month of the earliest to the month of the latest transaction, including months with no transactions, so an empty month breaks every group. `detectRecurring(transactions)` in `src/core/recurring.js` takes classified transactions with `payeeKey` and returns `{months, recurring, oneTime}`; a recurring entry has `amount`, `perMonth`, `monthly`, `direction`, `payee`, `category`, `kind` and its `transactions`. `monthsBetween` is exported.
+- Issue: #19. Verified by: varying salary stays one-time; a missing month breaks recurrence; two equal payments per month give double amount. Tests: `tests/unit/recurring.test.js`.
 
 ## ENG-8 Overrides
 
