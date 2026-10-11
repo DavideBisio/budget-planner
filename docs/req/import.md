@@ -4,8 +4,8 @@ How they are met: [spec/import.md](../spec/import.md). Logic requirements are in
 
 | ID     | Requirement                                                                                                                                                                                       | Status  |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| IMP-1  | The page is a guided sequence, top to bottom: 1 parsing, 2 import, 3 filtering, 4 payee extraction, 5 matching rules, 6 categories, 7 output                                                      | planned |
-| IMP-2  | Each step shows its status; a step that depends on an earlier one explains what it waits for                                                                                                      | planned |
+| IMP-1  | The page is a guided sequence, top to bottom: 1 parsing, 2 import, 3 filtering, 4 payee extraction, 5 matching rules, 6 categories, 7 output                                                      | done    |
+| IMP-2  | Each step shows its status; a step that depends on an earlier one explains what it waits for                                                                                                      | done    |
 | IMP-3  | Parsing settings are edited before importing, with a live preview of how the first rows are read                                                                                                  | planned |
 | IMP-4  | Several CSV files can be selected; a summary shows the number of transactions, the number of months, total income, total outcome and whether the balance reconciles                               | planned |
 | IMP-5  | Every pattern field uses a user-friendly input: plain words, lists of words, starts/ends/contains/equals, with live match feedback; real regular expressions remain available as an advanced mode | planned |

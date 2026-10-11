@@ -38,7 +38,7 @@ for (const path of PAGES) {
 
 test('popover opens by tap or click and closes on Escape', async ({ page }) => {
   await page.goto('/import.html');
-  const trigger = page.getByRole('button', { name: 'About this step' });
+  const trigger = page.getByRole('button', { name: 'About privacy' });
   const body = page.locator('#tip-file');
   await expect(body).toBeHidden();
   await trigger.click();

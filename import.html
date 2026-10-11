@@ -14,40 +14,35 @@
     </header>
     <main class="page">
       <h1>Import</h1>
+      <p class="lead">
+        Turn bank statements into planner cards in seven steps. Your files stay in this browser.
+        <span class="popover" data-popover>
+          <button
+            class="popover-trigger"
+            type="button"
+            aria-expanded="false"
+            aria-controls="tip-file"
+            aria-label="About privacy"
+          >
+            ?
+          </button>
+          <span class="popover-body" id="tip-file" role="tooltip" hidden>
+            Files are read in your browser and never uploaded.
+          </span>
+        </span>
+      </p>
+      <div class="progress">
+        <span class="progress-label" id="progress-label" role="status">0 of 7 steps ready</span>
+        <progress aria-label="Steps ready" max="7" value="0"></progress>
+      </div>
       <div class="columns">
         <div class="stack">
-          <section class="card" aria-labelledby="steps-title">
-            <h2 id="steps-title">Steps</h2>
-            <ol class="steps">
-              <li class="step" aria-current="step">
-                <div>
-                  <strong>Choose a file</strong>
-                  <span class="popover" data-popover>
-                    <button
-                      class="popover-trigger"
-                      type="button"
-                      aria-expanded="false"
-                      aria-controls="tip-file"
-                      aria-label="About this step"
-                    >
-                      ?
-                    </button>
-                    <span class="popover-body" id="tip-file" role="tooltip" hidden>
-                      Files are read in your browser and never uploaded.
-                    </span>
-                  </span>
-                </div>
-              </li>
-              <li class="step">
-                <div><strong>Check the columns</strong></div>
-              </li>
-            </ol>
-          </section>
+          <ol class="steps" id="steps"></ol>
         </div>
         <div class="stack">
-          <section class="card" aria-labelledby="preview-title">
-            <h2 id="preview-title">Preview</h2>
-            <p>The result of the import will appear here.</p>
+          <section class="card" id="result" aria-labelledby="result-title">
+            <h2 id="result-title">Result</h2>
+            <p>Import a file to see the result here.</p>
           </section>
         </div>
       </div>

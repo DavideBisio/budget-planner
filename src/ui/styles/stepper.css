@@ -1,0 +1,142 @@
+/* Import page: progress bar and the guided steps (IMP-1, IMP-2). */
+.lead {
+  color: var(--text-muted);
+}
+
+.progress {
+  position: sticky;
+  top: calc(var(--tap) + 2 * var(--space-2) + 1px);
+  z-index: 5;
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  padding: var(--space-2) 0;
+  background: var(--bg);
+}
+
+.progress-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.progress progress {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.steps .step-section {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.step-number {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.step-section[data-status='valid'] .step-number {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.steps .step-section[data-status='waiting'] {
+  opacity: 0.75;
+}
+
+.step-heading {
+  margin: 0;
+  font-size: inherit;
+}
+
+.step-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--space-3) var(--space-3) var(--space-3) calc(2rem + 2 * var(--space-3));
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.step-toggle[disabled] {
+  cursor: not-allowed;
+}
+
+.step-text {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.step-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.step-purpose,
+.step-reason {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.step-reason {
+  font-style: italic;
+}
+
+.step-reason[hidden] {
+  display: none;
+}
+
+.badge {
+  flex: none;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.step-section[data-status='valid'] .badge {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.step-section[data-status='attention'] .badge {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.step-body {
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.step-body[hidden] {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .progress {
+    position: static;
+  }
+}
