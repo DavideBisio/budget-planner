@@ -11,8 +11,9 @@ Requirements: [req/import.md](../req/import.md).
 ## IMP-3 Parsing step
 
 - Fields: delimiter, decimal, date format, column names, balance patterns. Suggestions are computed by sniffing a chosen file and offered, never applied silently.
-- Live preview: first rows as parsed, errors in plain language.
-- Issue: #23.
+- `sniffParse` in `src/core/sniff.js` (unit tested) suggests delimiter, decimal, date format and column names from a chosen sample file; a date format is left out when the dates are ambiguous. The UI lists the suggestions and applies them only on "Apply suggestions".
+- Live preview in the right column: first rows as parsed, balances found, skipped rows, errors in plain language; it asks for a fix while the settings do not validate. The preview uses the chosen sample file (files imported in step 2 join it in #24).
+- Issue: #23. Verified by: unit tests on sniffing; e2e in `tests/e2e/parsing.spec.js` with a fictional fixture and the sample.
 
 ## IMP-4 Import step and summary
 
