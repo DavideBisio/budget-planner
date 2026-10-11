@@ -26,13 +26,25 @@ describe('payeeKey (ENG-5)', () => {
 describe('extractPayee (ENG-5)', () => {
   it('takes capture group 1 of the first matching pattern', () => {
     const r = extractPayee(tx('Paid to Corner Market ref CARD', 'Card'), patterns);
-    expect(r).toEqual({ name: 'Corner Market', key: 'CORNER MARKET', source: 'pattern' });
+    expect(r).toEqual({
+      name: 'Corner Market',
+      key: 'CORNER MARKET',
+      source: 'pattern',
+      rule: 0,
+    });
   });
 
   it('tries patterns in order and the first match wins', () => {
     const list = ['shop (a\\w+)', 'shop (\\w+)'];
     expect(extractPayee(tx('shop apple'), list).name).toBe('apple');
     expect(extractPayee(tx('shop pear'), list).name).toBe('pear');
+  });
+
+  it('reports which pattern produced the payee, so rules can be counted', () => {
+    const list = ['shop (a\\w+)', 'shop (\\w+)'];
+    expect(extractPayee(tx('shop apple'), list).rule).toBe(0);
+    expect(extractPayee(tx('shop pear'), list).rule).toBe(1);
+    expect(extractPayee(tx('nothing'), list)).not.toHaveProperty('rule');
   });
 
   it('skips a pattern whose group is empty or did not take part', () => {
@@ -75,6 +87,15 @@ describe('assignPayees (ENG-5)', () => {
     const [out] = assignPayees(input, patterns);
     expect(out).toMatchObject({ payee: 'Corner Market', payeeKey: 'CORNER MARKET' });
     expect(input[0]).not.toHaveProperty('payee');
+  });
+
+  it('records where each payee came from', () => {
+    const out = assignPayees(
+      [tx('Paid to Corner Market ref CARD'), tx('Gift', 'Card'), tx('Plain words here today')],
+      patterns,
+    );
+    expect(out.map(t => t.payeeSource)).toEqual(['pattern', 'type', 'description']);
+    expect(out.map(t => t.payeeRule)).toEqual([0, undefined, undefined]);
   });
 
   it('works on the sample statement', () => {

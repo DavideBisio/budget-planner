@@ -23,12 +23,13 @@ const result = (name, source) => ({ name, key: payeeKey(name), source });
 /**
  * Payee of one transaction: capture group 1 of the first pattern that yields text, else the
  * Type column, else the first words of the description.
- * @returns {{name: string, key: string, source: 'pattern' | 'type' | 'description'}}
+ * `rule` is the index of the pattern that matched, present when `source` is 'pattern'.
+ * @returns {{name: string, key: string, source: 'pattern' | 'type' | 'description', rule?: number}}
  */
 export function extractPayee(tx, patterns) {
-  for (const pattern of patterns) {
+  for (const [rule, pattern] of patterns.entries()) {
     const captured = compilePattern(pattern)?.exec(tx.desc)?.[1]?.trim();
-    if (captured) return result(captured, 'pattern');
+    if (captured) return { ...result(captured, 'pattern'), rule };
   }
   const type = (tx.type ?? '').trim();
   if (type) return result(type, 'type');
@@ -36,10 +37,11 @@ export function extractPayee(tx, patterns) {
   return result(start, 'description');
 }
 
-/** Copies of the transactions with `payee` and `payeeKey` added. */
+/** Copies of the transactions with `payee`, `payeeKey`, `payeeSource` and, when a pattern found it, `payeeRule` (its index) added. */
 export function assignPayees(transactions, patterns) {
   return transactions.map(tx => {
-    const { name, key } = extractPayee(tx, patterns);
-    return { ...tx, payee: name, payeeKey: key };
+    const { name, key, source, rule } = extractPayee(tx, patterns);
+    const found = { payee: name, payeeKey: key, payeeSource: source };
+    return rule === undefined ? { ...tx, ...found } : { ...tx, ...found, payeeRule: rule };
   });
 }
