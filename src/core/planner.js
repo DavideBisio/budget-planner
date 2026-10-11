@@ -158,7 +158,7 @@ export function validatePlanner(state) {
 // id that does not exist changes nothing.
 
 /** An id that no card or entry in the state uses: `prefix-n` with n above every n in use. */
-function nextId(state, prefix) {
+export function nextId(state, prefix) {
   const used = [...state.cards, ...state.cards.flatMap(c => c.entries)]
     .map(item => new RegExp(`^${prefix}-(\\d+)$`).exec(item.id)?.[1])
     .filter(Boolean)

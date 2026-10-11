@@ -105,7 +105,7 @@ Written by the import page, read, applied and removed by the planner.
 - `mode` is `replace` or `merge`. `months` lists the months the data covers. Amounts are integer cents as the planner shows them: income and expenses positive, and `saving` positive for money put aside and negative for a withdrawal (ENG-9).
 - `perMonth` (how many times a recurring card happens in each month) is present for recurring cards only; `month` for one-time cards only. Recurring cards apply to every month.
 - `id` is a hash of the card's internal id: the same data gives the same id (merge relies on it) and no bank text appears in the payload. It is built by `buildHandoff` in `src/core/handoff.js`.
-- The planner validates the payload before applying it; an invalid payload is discarded with a message and never partially applied.
+- The planner validates the payload before applying it; an invalid payload is discarded with a message and never partially applied. How replace and merge apply it is described in spec/storage.md (STOR-6).
 
 ## Build and offline
 

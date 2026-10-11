@@ -86,6 +86,16 @@ export function saveEnvelope(name, envelope) {
 /** Store `data` under `name` with its schema version. Returns false when it could not be saved. */
 export const save = (name, version, data) => saveEnvelope(name, wrap(version, data));
 
+/** Remove one key. Returns false when the browser refuses. */
+export function remove(name) {
+  try {
+    localStorage.removeItem(PREFIX + name);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** The names (without the prefix) of everything the app has stored, backups included. */
 export function storedKeys() {
   try {
