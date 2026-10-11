@@ -3,6 +3,7 @@ import { applySuggestion, sniffParse, suggestionLines } from '../../core/sniff.j
 import { parseStatement } from '../../core/parser.js';
 import { h, uid } from '../dom.js';
 import { formatCents } from '../format.js';
+import { createPatternInput } from '../pattern-input.js';
 import { errorsIn, updateConfig } from './config-edit.js';
 
 const PREVIEW_ROWS = 8;
@@ -129,16 +130,18 @@ export function mountParsing(body, store, results) {
       hint,
     );
   }
-  fields.openingRe = field(
-    'Opening balance row',
-    text(v => set(['openingRe'], v)),
-    'A pattern that the description of the opening balance row matches',
-  );
-  fields.closingRe = field(
-    'Closing balance row',
-    text(v => set(['closingRe'], v)),
-    'A pattern that the description of the closing balance row matches',
-  );
+  const balancePatterns = {
+    openingRe: createPatternInput({
+      label: 'Opening balance row',
+      value: store.get().config.parse.openingRe,
+      onChange: v => set(['openingRe'], v),
+    }),
+    closingRe: createPatternInput({
+      label: 'Closing balance row',
+      value: store.get().config.parse.closingRe,
+      onChange: v => set(['closingRe'], v),
+    }),
+  };
 
   // Suggestions come from a sample file and are never applied until the user says so.
   const sampleId = uid('sample');
@@ -168,7 +171,7 @@ export function mountParsing(body, store, results) {
     suggestions,
     group('Format', ...['delim', 'decimal', 'dateFmt'].map(k => fields[k].node)),
     group('Columns', ...COLUMNS.map(([k]) => fields[`cols.${k}`].node)),
-    group('Balance rows', fields.openingRe.node, fields.closingRe.node),
+    group('Balance rows', balancePatterns.openingRe.node, balancePatterns.closingRe.node),
   );
 
   const preview = results.card('parsing', 'Parsing preview');
@@ -223,7 +226,7 @@ export function mountParsing(body, store, results) {
     );
   }
 
-  function renderPreview(state) {
+  function renderPreview(state, result) {
     const { config } = state;
     const sample = subjectOf(state);
     if (!sample) {
@@ -237,7 +240,6 @@ export function mountParsing(body, store, results) {
       );
       return;
     }
-    const result = parseStatement(sample.text, config.parse, sample.name);
     const balances = [];
     if (result.opening !== null) balances.push(`Opening balance ${formatCents(result.opening)}`);
     if (result.closing !== null) balances.push(`Closing balance ${formatCents(result.closing)}`);
@@ -275,8 +277,6 @@ export function mountParsing(body, store, results) {
       delim: parse.delim,
       decimal: parse.decimal,
       dateFmt: parse.dateFmt,
-      openingRe: parse.openingRe,
-      closingRe: parse.closingRe,
       ...Object.fromEntries(COLUMNS.map(([k]) => [`cols.${k}`, parse.cols[k] ?? ''])),
     };
     for (const [key, { control, error }] of Object.entries(fields)) {
@@ -287,7 +287,14 @@ export function mountParsing(body, store, results) {
       if (message) control.setAttribute('aria-invalid', 'true');
       else control.removeAttribute('aria-invalid');
     }
+    const subject = subjectOf(state);
+    const parsed =
+      subject && !errors.length ? parseStatement(subject.text, parse, subject.name) : null;
+    for (const [key, input] of Object.entries(balancePatterns)) {
+      input.setValue(parse[key]);
+      input.setTexts(parsed?.descriptions ?? []);
+    }
     renderSuggestions(state);
-    renderPreview(state);
+    renderPreview(state, parsed);
   });
 }

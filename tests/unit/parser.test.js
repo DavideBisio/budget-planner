@@ -196,6 +196,17 @@ describe('parseStatement (ENG-2)', () => {
     ]);
   });
 
+  it('lists the description of every data row, balance rows included', () => {
+    const result = parseStatement(fixture('comma-split.csv'), settings());
+    expect(result.descriptions).toEqual([
+      'Opening balance',
+      'Payroll Example Corp ref JAN',
+      'Paid to Sample Landlord ref RENT',
+      'Paid to Demo Streaming ref SUB',
+      'Closing balance',
+    ]);
+  });
+
   it('reports an empty file', () => {
     const result = parseStatement('', settings(), 'empty.csv');
     expect(result.errors).toEqual([

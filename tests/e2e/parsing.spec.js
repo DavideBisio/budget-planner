@@ -5,6 +5,7 @@ const FIXTURE = 'tests/fixtures/semicolon-decimal-comma.csv';
 const SAMPLE = 'data/sample-bank-report.csv';
 
 const parsingBadge = page => page.getByRole('button', { name: /^Parsing/ }).locator('.badge');
+const opening = page => page.getByRole('group', { name: 'Opening balance row' });
 const preview = page => page.locator('#result-parsing');
 
 test.beforeEach(async ({ page }) => {
@@ -16,7 +17,7 @@ test('IMP-3: shows the current format and column settings', async ({ page }) => 
   await expect(page.getByLabel('Decimal separator')).toHaveValue('.');
   await expect(page.getByLabel('Date format')).toHaveValue('ymd');
   await expect(page.getByLabel('Booking date column')).toHaveValue('Booking date');
-  await expect(page.getByLabel('Opening balance row')).toHaveValue('^opening balance');
+  await expect(opening(page).getByLabel('Text to look for')).toHaveValue('opening balance');
   await expect(preview(page)).toBeHidden();
 });
 
@@ -58,15 +59,15 @@ test('IMP-2, IMP-3: an invalid setting is explained and changes the step status'
 }) => {
   await page.getByLabel('Sample statement').setInputFiles(SAMPLE);
   await expect(parsingBadge(page)).toHaveText('Ready');
-  await page.getByLabel('Opening balance row').fill('(');
-  await expect(page.locator('.field .error', { hasText: /invalid pattern/i })).toBeVisible();
-  await expect(page.getByLabel('Opening balance row')).toHaveAttribute('aria-invalid', 'true');
+  await opening(page).getByLabel('Match when the text').selectOption('advanced');
+  await opening(page).getByLabel('Regular expression').fill('(');
+  await expect(opening(page).getByRole('alert')).toContainText('never closed');
   await expect(parsingBadge(page)).toHaveText('Needs attention');
   await expect(preview(page)).toContainText('Fix the settings');
   await expect(page.getByRole('button', { name: /^Import/ }).locator('.step-reason')).toContainText(
     'step 1',
   );
-  await page.getByLabel('Opening balance row').fill('^opening balance');
+  await opening(page).getByLabel('Regular expression').fill('^opening balance');
   await expect(parsingBadge(page)).toHaveText('Ready');
   await expect(preview(page)).toContainText('16 transactions read');
 });
