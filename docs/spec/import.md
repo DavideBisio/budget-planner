@@ -33,8 +33,8 @@ Requirements: [req/import.md](../req/import.md).
 
 ## IMP-6 to IMP-9 Rule editors
 
-- Shared pattern: ordered list, move up and down buttons (drag as extra on desktop), per-item delete, count of affected rows, test against a chosen transaction.
-- Filtering: #26. Payee extraction: #27. Matching rules with hit counts and unmatched list, cards instead of a wide table on phones: #28. Categories with rename propagation: #29.
+- Shared pattern (`src/ui/pattern-list.js`): ordered list, move up and down buttons (drag as extra on desktop), per-item delete, count of affected rows, test against a chosen transaction.
+- Filtering: #26 (`src/ui/import/filtering.js`; date inputs, a switch for own-account transfers, two pattern lists, and a result card with the count and three examples per reason; each pattern shows how many rows it removes). Payee extraction: #27. Matching rules with hit counts and unmatched list, cards instead of a wide table on phones: #28. Categories with rename propagation: #29.
 
 ## IMP-10 and IMP-11 Result list and debugging
 
