@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
+  addCard,
+  addEntry,
   addMonths,
   emptyPlanner,
   monthRange,
   project,
+  removeCard,
+  removeEntry,
+  updateCard,
+  updateEntry,
   validatePlanner,
 } from '../../src/core/planner.js';
 
@@ -149,5 +155,96 @@ describe('validatePlanner', () => {
     expect(validatePlanner(state).map(p => p.path)).toContain('cards[1].entries[0].id');
     expect(validatePlanner(null)).toHaveLength(1);
     expect(validatePlanner({ ...sample(), cards: 'none' }).map(p => p.path)).toContain('cards');
+  });
+});
+
+describe('editing cards and entries (PLAN-3)', () => {
+  it('adds a recurring card with a fresh id and leaves the old state alone', () => {
+    const before = sample();
+    const copy = structuredClone(before);
+    const after = addCard(before, { type: 'recurring', title: 'Bills' });
+    expect(before).toEqual(copy);
+    expect(after.cards).toHaveLength(3);
+    expect(after.cards[2]).toEqual({
+      id: expect.any(String),
+      type: 'recurring',
+      title: 'Bills',
+      month: null,
+      entries: [],
+    });
+    expect(after.cards.map(c => c.id)).toEqual(['c1', 'c2', after.cards[2].id]);
+  });
+
+  it('gives a one-time card the month it was given, and the start month by default', () => {
+    const state = addCard(addCard(sample(), { type: 'one-time', title: 'A', month: '2026-02' }), {
+      type: 'one-time',
+      title: 'B',
+    });
+    expect(state.cards[2].month).toBe('2026-02');
+    expect(state.cards[3].month).toBe('2026-01');
+  });
+
+  it('never reuses an id, even after a delete', () => {
+    let state = addCard(emptyPlanner('2026-01'), { type: 'recurring', title: 'A' });
+    const first = state.cards[0].id;
+    state = addCard(state, { type: 'recurring', title: 'B' });
+    state = removeCard(state, first);
+    state = addCard(state, { type: 'recurring', title: 'C' });
+    expect(new Set(state.cards.map(c => c.id)).size).toBe(2);
+    expect(validatePlanner(state)).toEqual([]);
+  });
+
+  it('renames a card and changes the month of a one-time card', () => {
+    const state = updateCard(sample(), 'c2', { title: 'Trip', month: '2026-04' });
+    expect(state.cards[1]).toMatchObject({ title: 'Trip', month: '2026-04' });
+    expect(project(state).rows[3].expenses).toBe(62000);
+  });
+
+  it('ignores a month given to a recurring card', () => {
+    expect(updateCard(sample(), 'c1', { month: '2026-04' }).cards[0].month).toBeNull();
+  });
+
+  it('removes a card with its entries', () => {
+    const state = removeCard(sample(), 'c2');
+    expect(state.cards.map(c => c.id)).toEqual(['c1']);
+  });
+
+  it('adds a manual entry to a card', () => {
+    const state = addEntry(sample(), 'c1', {
+      label: 'Gym',
+      kind: 'expense',
+      amountCents: 3000,
+    });
+    const added = state.cards[0].entries.at(-1);
+    expect(added).toMatchObject({
+      label: 'Gym',
+      kind: 'expense',
+      amountCents: 3000,
+      category: '',
+      source: 'manual',
+    });
+    expect(validatePlanner(state)).toEqual([]);
+  });
+
+  it('edits and removes an entry wherever it is', () => {
+    let state = updateEntry(sample(), 'trip', { amountCents: 30000, label: 'Big trip' });
+    expect(state.cards[1].entries[0]).toMatchObject({ amountCents: 30000, label: 'Big trip' });
+    state = removeEntry(state, 'rent');
+    expect(state.cards[0].entries.map(e => e.id)).toEqual(['piggy']);
+  });
+
+  it('keeps the source of an entry when it is edited', () => {
+    const state = sample();
+    state.cards[0].entries[0].source = 'imported';
+    expect(
+      updateEntry(state, 'rent', { source: 'manual', label: 'Rent' }).cards[0].entries[0].source,
+    ).toBe('imported');
+  });
+
+  it('leaves the state as it is for an unknown id', () => {
+    const state = sample();
+    expect(updateEntry(state, 'nope', { label: 'x' })).toEqual(state);
+    expect(removeCard(state, 'nope')).toEqual(state);
+    expect(addEntry(state, 'nope', { label: 'x', kind: 'expense', amountCents: 1 })).toEqual(state);
   });
 });

@@ -20,7 +20,10 @@ Requirements: [req/planner.md](../req/planner.md).
 
 ## Cards (PLAN-3, 8, 9)
 
-- Buttons "+ recurring card" and "+ one-time card". Badges show kind and source (imported or manual). Tooltips use the shared tap-capable popover. The amount input accepts negative numbers.
+- Buttons "+ recurring card" and "+ one-time card" add an empty card (a one-time card starts at the first month shown). A card has a title, and a month if it is one-time; entries have a label, category, kind (income, expense, saving) and amount. Adding focuses the new field; deleting a card that has entries asks first.
+- Editing happens in place and is saved on every change. The list is rebuilt only when cards or entries are added, removed or moved, so typing never loses focus.
+- Badges: the card shows its kind (Recurring or One-time) and its source (Imported when all entries came from the import page, Manual when none did, otherwise Mixed); each entry shows Imported or Manual. Each entry has an info button (tap, click, hover or focus) with its kind, category, amount, when it applies and its source, using the shared popover.
+- The amount accepts a negative value only for a saving (a withdrawal, PLAN-6); for any other kind it is explained and the edit is not applied. An amount that is not a number is explained and not applied.
 - A header button "Import bank CSV" opens the import page.
 - Issue: #35.
 
