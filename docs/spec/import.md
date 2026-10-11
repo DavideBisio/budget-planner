@@ -39,8 +39,8 @@ Requirements: [req/import.md](../req/import.md).
 ## IMP-10 and IMP-11 Result list and debugging
 
 - Tabs: recurring, one-time, ignored. Hover on desktop, tap on phones and keyboard focus open a popover with at most five transactions: date, amount, raw row, payee, matched rule (number and pattern), category and kind, then "+N more".
-- Overrides per transaction or payee are set from the same list.
-- Issue: #30.
+- Overrides per transaction or payee are set from the same list: a Change panel per entry with category, kind, apply-to (this transaction or all of the payee; recurring entries always apply to the payee), Ignore and Reset. Ignored entries have a Restore button. `buildResult` in `src/core/result.js` (unit tested) applies overrides, sets ignored transactions aside, detects recurring entries and builds the cards; `src/ui/import/result.js` renders it. Overrides live in the page state for now; persisting them is #39.
+- Issue: #30. Verified by: unit tests on `buildResult`; e2e in `tests/e2e/result.spec.js`.
 
 ## IMP-12 Output
 
