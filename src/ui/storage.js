@@ -86,6 +86,31 @@ export function saveEnvelope(name, envelope) {
 /** Store `data` under `name` with its schema version. Returns false when it could not be saved. */
 export const save = (name, version, data) => saveEnvelope(name, wrap(version, data));
 
+/**
+ * Write several sections as one: `[{name, version, data}]`. When one cannot be written, every
+ * section goes back to what it held before and the result is false (STOR-4).
+ */
+export function saveAll(items) {
+  const before = new Map(items.map(({ name }) => [name, read(name)]));
+  const done = [];
+  for (const { name, version, data } of items) {
+    if (!save(name, version, data)) {
+      for (const written of done) {
+        try {
+          const raw = before.get(written);
+          if (typeof raw === 'string') localStorage.setItem(PREFIX + written, raw);
+          else localStorage.removeItem(PREFIX + written);
+        } catch {
+          // nothing more can be done: the person has been told that storage failed
+        }
+      }
+      return false;
+    }
+    done.push(name);
+  }
+  return true;
+}
+
 /** Remove one key. Returns false when the browser refuses. */
 export function remove(name) {
   try {
