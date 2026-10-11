@@ -44,8 +44,9 @@ Requirements: [req/import.md](../req/import.md).
 
 ## IMP-12 Output
 
-- Preview of the cards with totals; mode replace or merge; send writes the handoff payload (STOR-6); download saves it as JSON.
-- Issues: #31, #40.
+- Preview of the cards with totals for the whole period; mode replace or merge, with one sentence saying what will change (`describeHandoff`); Send to planner writes the handoff payload (STOR-6) and links to the planner; Download JSON saves the same payload as `planner-cards.json`. `buildHandoff` and `cardId` live in `src/core/handoff.js` (unit tested). Card ids in the payload are hashes of the internal ids, because those are made from transaction text and the payload must not carry bank descriptions.
+- For now `src/ui/handoff.js` writes the browser key directly; #39 moves that into the storage module and #40 adds the planner side (read, validate, apply, clear).
+- Issues: #31, #40. Verified by: unit tests; e2e in `tests/e2e/output.spec.js`.
 
 ## IMP-13 and IMP-14 Configuration file and persistence
 

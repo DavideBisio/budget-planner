@@ -459,3 +459,22 @@ summary {
   display: grid;
   gap: var(--space-1);
 }
+
+/* Card preview lines */
+.card-lines {
+  list-style: none;
+  padding-left: 0;
+}
+
+.card-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.handoff-status {
+  font-weight: 600;
+}
