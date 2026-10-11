@@ -48,7 +48,9 @@ export function mountInputs(root, store) {
       id: horizonId,
       onchange: () => store.update(p => (p.horizon = Number(horizon.value))),
     },
-    HORIZONS.map(n => h('option', { value: String(n), selected: n === plan.horizon }, `${n}`)),
+    [...new Set([...HORIZONS, plan.horizon])]
+      .sort((a, b) => a - b)
+      .map(n => h('option', { value: String(n), selected: n === plan.horizon }, `${n}`)),
   );
 
   root.append(

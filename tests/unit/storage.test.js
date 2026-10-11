@@ -3,6 +3,7 @@ import {
   clearAll,
   load,
   onStorageProblem,
+  remove,
   save,
   saveEnvelope,
   storedKeys,
@@ -123,6 +124,21 @@ describe('unavailable or full storage (STOR-1)', () => {
     vi.stubGlobal('localStorage', fakeStorage({ setItem: quota }));
     save('planner', 1, {});
     expect(problems).toEqual([]);
+  });
+});
+
+describe('remove', () => {
+  it('removes one key and nothing else', () => {
+    save('planner', 1, {});
+    save('config', 1, {});
+    expect(remove('planner')).toBe(true);
+    expect(storedKeys()).toEqual(['config']);
+  });
+
+  it('returns false when the browser refuses', () => {
+    const refusing = fakeStorage({ removeItem: denied });
+    vi.stubGlobal('localStorage', refusing);
+    expect(remove('planner')).toBe(false);
   });
 });
 

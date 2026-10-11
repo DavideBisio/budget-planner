@@ -22,5 +22,9 @@ Requirements: [req/storage.md](../req/storage.md).
 
 ## STOR-6 Handoff
 
-- The import page writes a versioned payload (cards plus mode replace or merge) under a dedicated key; the planner reads it on load, applies it, and clears it. The payload schema is documented in `docs/ARCHITECTURE.md`.
-- Issues: #40, #6.
+- The import page writes a versioned payload (cards plus mode replace or merge) under the key `handoff` (`sendToPlanner`, through the storage module); the planner reads it on load (`src/ui/planner/handoff.js`), applies it, and removes it. It works across pages of the same browser without a server. The payload schema is documented in `docs/ARCHITECTURE.md`.
+- `validateHandoff` (`src/core/handoff-apply.js`) lists problems by path. An invalid payload is removed with a message and nothing changes; a payload from a newer version is left in place and explained; a payload that is read once is gone, so reloading does not apply it again.
+- `applyHandoff` maps each payload card to an entry with id `imp-<card id>` and source `imported`: recurring cards go on one recurring card "Imported recurring", one-time cards on a card per month ("Imported · Mar 26").
+  - **Replace** drops every current card, keeps the salary, starts the plan at the first imported month and shows at least all imported months.
+  - **Merge** keeps the cards, the start and the salary, and adds only entries whose id is not in the plan yet (wherever the person moved them), so applying the same payload twice changes nothing the second time. An imported entry the person deleted comes back on the next merge.
+- Issues: #40, #6. Verified by: `tests/unit/handoff-apply.test.js`, `tests/unit/handoff.test.js`, `tests/e2e/handoff.spec.js`.
