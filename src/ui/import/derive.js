@@ -4,6 +4,7 @@
 import { filterTransactions } from '../../core/filter.js';
 import { parseStatement } from '../../core/parser.js';
 import { classifyTransactions } from '../../core/match.js';
+import { buildResult } from '../../core/result.js';
 import { assignPayees } from '../../core/payee.js';
 import { errorsIn } from './config-edit.js';
 
@@ -35,6 +36,7 @@ export function createDerive() {
   const filtered = memo();
   const payeed = memo();
   const classified = memo();
+  const resulted = memo();
 
   return state => {
     const { config, sources } = state;
@@ -63,6 +65,7 @@ export function createDerive() {
     const matched = classified([withPayees, rulesKey], () =>
       classifyTransactions(withPayees, Array.isArray(config.rules) ? config.rules : []),
     );
+    const final = resulted([matched, state.overrides], () => buildResult(matched, state.overrides));
     return {
       ...state,
       files,
@@ -70,6 +73,7 @@ export function createDerive() {
       filtered: result,
       payeed: withPayees,
       classified: matched,
+      result: final,
     };
   };
 }

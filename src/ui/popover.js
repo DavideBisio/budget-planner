@@ -13,10 +13,15 @@ function setOpen(root, open) {
   body.hidden = !open;
 }
 
-export function initPopovers(scope = document) {
-  const roots = [...scope.querySelectorAll('[data-popover]')];
+const roots = new Set();
+let listening = false;
 
-  for (const root of roots) {
+/** Wire every popover under `scope` that is not wired yet; safe to call again after rendering. */
+export function initPopovers(scope = document) {
+  const fresh = [...scope.querySelectorAll('[data-popover]')].filter(root => !roots.has(root));
+
+  for (const root of fresh) {
+    roots.add(root);
     const trigger = root.querySelector('.popover-trigger');
     const isOpen = () => trigger.getAttribute('aria-expanded') === 'true';
 
@@ -43,7 +48,12 @@ export function initPopovers(scope = document) {
     });
   }
 
+  if (listening) return;
+  listening = true;
   document.addEventListener('pointerdown', event => {
-    for (const root of roots) if (!root.contains(event.target)) setOpen(root, false);
+    for (const root of roots) {
+      if (!root.isConnected) roots.delete(root);
+      else if (!root.contains(event.target)) setOpen(root, false);
+    }
   });
 }
