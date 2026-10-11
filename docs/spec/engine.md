@@ -24,7 +24,8 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurr
 ## ENG-3 Reconciliation
 
 - Per file: `opening + sum(movements) = closing` within 0.01. Across files sorted by first date: closing of one equals opening of the next; report gap or overlap.
-- Issue: #15.
+- `src/core/reconcile.js`: `reconcileFile(statement)` gives `status` `ok`, `mismatch` or `unknown` (a balance row is missing) with the difference in cents; `checkChain(statements)` returns `{files, links, ok, problems}`. A link is `ok` when the next opening equals the previous closing within one cent; otherwise `overlap` when the date ranges intersect (with the number of shared transaction ids), else `gap`; `unknown` when a balance is missing and the dates do not overlap. Files without transactions sort last.
+- Issue: #15. Verified by: `tests/unit/reconcile.test.js` (broken chain, overlap, fixture).
 
 ## ENG-4 Filtering
 
