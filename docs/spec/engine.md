@@ -41,8 +41,9 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurr
 
 ## ENG-6 Matching
 
-- First matching rule wins. Kind: `income`, `saving`, or empty (expense by direction). Result stores rule index, pattern and raw row. Unmatched: "Other income" or "Other expenses".
-- Issue: #18.
+- First matching rule wins; the pattern is tested against the description, case-insensitively. Kind: `income`, `saving`, `expense` or empty; an empty kind is resolved from the direction of the money (in is `income`, out is `expense`), so a classified transaction always has a kind. Result stores the rule (`{index, pattern}`, or `null`) and the transaction keeps its raw row. Unmatched: "Other income" or "Other expenses".
+- `src/core/match.js`: `classify(tx, rules)` and `classifyTransactions(transactions, rules)` (copies with `category`, `kind`, `rule`).
+- Issue: #18. Verified by: `tests/unit/match.test.js` (ordering, overlap, fallback, sample statement).
 
 ## ENG-7 Recurring detection
 
