@@ -16,9 +16,10 @@ Pipeline: parse, de-duplicate, filter, extract payee, match rules, detect recurr
 
 - Own CSV reader (quotes, embedded delimiters and newlines, BOM, CRLF). Columns are found by header name prefix, case-insensitive.
 - Amount = credit + debit columns, or one signed column. Dates normalised to `YYYY-MM-DD`.
-- Rows without a booking date whose description matches the opening or closing pattern carry the balance in the amount columns and are not transactions.
-- Each transaction id is `date|amount|description#n`, so identical rows stay distinct and re-imports are stable. Each keeps its raw row for the debug view.
-- Issue: #14.
+- Rows whose description matches the opening or closing pattern carry the balance in the amount columns and are not transactions. The header is the best-matching row among the first 30, so lines before it are ignored. Rows with an unreadable date or amount are skipped and listed as warnings (file, row, reason); a missing required column is an error that names the file and the column, and nothing is parsed.
+- Amounts are integer cents (money in positive, out negative); debit is always read as money out. Each transaction id is `date|amount|description#n` with `n` counting identical rows within the file, so identical rows stay distinct and re-imports are stable. Each keeps its raw row for the debug view.
+- API: `parseStatement(text, parse, file)` returns `{file, transactions, opening, closing, warnings, errors}`; `parseCsv`, `parseAmount` and `parseDate` are exported helpers.
+- Issue: #14. Verified by: `tests/unit/csv.test.js`, `tests/unit/parser.test.js` (every fixture and the sample statement).
 
 ## ENG-3 Reconciliation
 
