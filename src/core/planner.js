@@ -148,3 +148,84 @@ export function validatePlanner(state) {
   });
   return problems;
 }
+
+// Editing (PLAN-3). Every function returns a new state and leaves the one it was given alone; an
+// id that does not exist changes nothing.
+
+/** An id that no card or entry in the state uses: `prefix-n` with n above every n in use. */
+function nextId(state, prefix) {
+  const used = [...state.cards, ...state.cards.flatMap(c => c.entries)]
+    .map(item => new RegExp(`^${prefix}-(\\d+)$`).exec(item.id)?.[1])
+    .filter(Boolean)
+    .map(Number);
+  return `${prefix}-${Math.max(0, ...used) + 1}`;
+}
+
+const mapCards = (state, change) => ({ ...state, cards: state.cards.map(change) });
+
+/** Add an empty card. A one-time card without a month gets the first month shown. */
+export function addCard(state, { type, title = '', month }) {
+  const card = {
+    id: nextId(state, 'card'),
+    type,
+    title,
+    month: type === 'one-time' ? (month ?? state.start) : null,
+    entries: [],
+  };
+  return { ...state, cards: [...state.cards, card] };
+}
+
+/** Change a card's title or, for a one-time card, its month. */
+export function updateCard(state, id, { title, month }) {
+  return mapCards(state, card => {
+    if (card.id !== id) return card;
+    return {
+      ...card,
+      title: title ?? card.title,
+      month: card.type === 'one-time' ? (month ?? card.month) : null,
+    };
+  });
+}
+
+export const removeCard = (state, id) => ({
+  ...state,
+  cards: state.cards.filter(card => card.id !== id),
+});
+
+/** Add a manual entry to a card. */
+export function addEntry(state, cardId, { label, category = '', kind, amountCents }) {
+  if (!state.cards.some(card => card.id === cardId)) return state;
+  const entry = {
+    id: nextId(state, 'entry'),
+    label,
+    category,
+    kind,
+    amountCents,
+    source: 'manual',
+  };
+  return mapCards(state, card =>
+    card.id === cardId ? { ...card, entries: [...card.entries, entry] } : card,
+  );
+}
+
+/** Change the label, category, kind or amount of an entry. Its id and source stay. */
+export function updateEntry(state, id, patch) {
+  const { label, category, kind, amountCents } = patch;
+  return mapCards(state, card => ({
+    ...card,
+    entries: card.entries.map(entry =>
+      entry.id === id
+        ? {
+            ...entry,
+            label: label ?? entry.label,
+            category: category ?? entry.category,
+            kind: kind ?? entry.kind,
+            amountCents: amountCents ?? entry.amountCents,
+          }
+        : entry,
+    ),
+  }));
+}
+
+export const removeEntry = (state, id) =>
+  mapCards(state, card => ({ ...card, entries: card.entries.filter(entry => entry.id !== id) }));

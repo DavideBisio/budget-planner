@@ -24,6 +24,13 @@ export function createPlannerStore() {
     update(change) {
       const plan = structuredClone(store.get().plan);
       change(plan);
+      this.replace(plan);
+    },
+    /** Replace the plan with the result of a pure function from the current plan to a new one. */
+    apply(change) {
+      this.replace(change(store.get().plan));
+    },
+    replace(plan) {
       save('planner', PLANNER_VERSION, plan);
       store.set({ plan });
     },
