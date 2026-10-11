@@ -57,4 +57,4 @@ Requirements: [req/import.md](../req/import.md).
 
 ## IMP-15 Navigation
 
-- A "Budget Planner" button in the page header. Issue: #7.
+- A "Budget Planner" button beside the page title opens the planner (the navigation bar links there too); after sending cards, the output step links to it as well. Issue: #7. Verified by: `tests/e2e/import-nav.spec.js`.
