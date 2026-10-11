@@ -133,3 +133,76 @@
 .entry [aria-invalid] {
   border-color: var(--danger);
 }
+
+/* Chart (PLAN-4, PLAN-5) */
+.chart svg {
+  display: block;
+  max-width: 100%;
+}
+
+.chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.chart-zero {
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+}
+
+.chart-label {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.chart-line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.chart-line.cash,
+.chart-dot.cash {
+  stroke: var(--accent);
+  fill: var(--accent);
+}
+
+.chart-line.cash {
+  fill: none;
+}
+
+.chart-line.savings,
+.chart-dot.savings {
+  stroke: var(--success);
+  fill: var(--success);
+}
+
+.chart-line.savings {
+  fill: none;
+  stroke-dasharray: 7 4;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.swatch {
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: var(--space-2);
+  vertical-align: middle;
+  border-top: 3px solid var(--accent);
+}
+
+.swatch.savings {
+  border-top: 3px dashed var(--success);
+}
+
+.chart-data {
+  margin-top: var(--space-3);
+}

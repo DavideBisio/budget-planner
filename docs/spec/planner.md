@@ -34,5 +34,7 @@ Requirements: [req/planner.md](../req/planner.md).
 
 ## Chart (PLAN-4, 5)
 
-- Responsive SVG or canvas chart of balance and savings per month; values readable without hover; a data table alternative for accessibility.
+- `src/core/chart.js` computes the geometry (nice scale that always includes zero, tick labels, evenly spaced months, month labels thinned to at least 48 px apart); `src/ui/planner/chart.js` draws it as an SVG at its real pixel size (the viewBox equals the rendered width, so text stays 11 px or more at 375 px) and redraws when the container is resized.
+- Cash is a solid line and savings a dashed one, so the two differ without colour. A withdrawal makes the savings line go down; negative values stay inside the plot.
+- No hover is needed: the legend writes the end values, the SVG has an accessible name with the range and end values, and a "Show data table" section lists month, cash change, cash balance and savings.
 - Issue: #37.
