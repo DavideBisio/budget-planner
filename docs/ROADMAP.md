@@ -28,4 +28,4 @@ order below (issue numbers). Items on the same line can run in parallel.
 5. **M4 Integration**: #39 storage, then #40 handoff, then #41 backup.
 6. **M5 Polish and release**: #43 to #48 in any order, #48 last.
 
-Done: M0, M1 and M2. Next step today: **M3, starting with #33 (the planner model)**.
+Done: M0, M1, M2 and M3. Next step today: **M4, starting with #39 (the storage layer)**.

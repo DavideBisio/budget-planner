@@ -120,6 +120,11 @@ export function mountCards(root, store) {
       onchange: () => commit(),
     });
     const error = h('span', { class: 'error', id: errorId, hidden: true });
+    const savingHint = h(
+      'span',
+      { class: 'hint' },
+      'A negative amount takes money out of savings (a withdrawal).',
+    );
     const moveSelect = h('select', {
       class: 'move',
       onchange: () => {
@@ -199,12 +204,14 @@ export function mountCards(root, store) {
         field('Kind', kind),
         field('Category', category),
       ),
+      savingHint,
       error,
     );
 
     /** Refresh what is derived from the stored entry: badge, details, names of the buttons. */
     view.sync = (current, owner, cards) => {
       const name = current.label || 'entry';
+      savingHint.hidden = current.kind !== 'saving';
       sourceBadge.textContent = SOURCE_LABEL[current.source];
       trigger.setAttribute('aria-label', `About ${name}`);
       remove.textContent = 'Remove';

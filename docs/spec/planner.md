@@ -8,7 +8,9 @@ Requirements: [req/planner.md](../req/planner.md).
 - State (schema version 1): `{salaryCents, start, horizon, cards}`. `start` is the first month shown (YYYY-MM) and `horizon` how many months (default 12). A card is a container: `{id, type: recurring | one-time, title, month, entries}`. An entry is `{id, label, category, kind: income | expense | saving, amountCents, source: imported | manual}`. Entry amounts are what the user sees: income and expenses positive, a saving positive when put aside and negative for a withdrawal.
 - `project(state)` returns one row per month (`salary, income, expenses, saving, net, cash, savings`), totals, and `outside`: the one-time cards whose month is not shown, so the UI can say so instead of dropping them silently.
 - Cash changes by `salary + income - expenses - saving` each month; savings change by the saving amount.
-- Saving subtracts from cash and adds to savings. A negative saving is a withdrawal: cash goes up, savings go down. The model does not clamp; the UI warns when savings drop below zero.
+- Saving subtracts from cash and adds to savings. A negative saving is a withdrawal: cash goes up, savings go down. The model does not clamp.
+- `project` also returns `warnings.savingsBelowZero` (`{month, lowest}` or null): the first month the savings are negative and the lowest value reached. The UI shows "Savings go below zero from Mar 26 (lowest -200.00)" in the summary and above the chart, as text with a symbol.
+- A saving entry shows a hint that a negative amount is a withdrawal. Imported incoming transactions of kind saving already arrive as negative savings (ENG-9, `buildCards`), so the handoff needs no conversion.
 - Issues: #33, #38.
 
 ## Layout (GEN-1, GEN-2 applied)

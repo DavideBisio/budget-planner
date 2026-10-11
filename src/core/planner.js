@@ -45,7 +45,9 @@ const sumKind = (card, kind) =>
  *   saving: number, net: number, cash: number, savings: number}[],
  *   totals: {income: number, expenses: number, saving: number, net: number, cash: number,
  *     savings: number},
- *   outside: string[]}} `outside` lists the one-time cards whose month is not shown.
+ *   outside: string[], warnings: {savingsBelowZero: {month: string, lowest: number} | null}}}
+ *   `outside` lists the one-time cards whose month is not shown; `savingsBelowZero` names the
+ *   first month the savings are negative and the lowest value reached.
  */
 export function project(state) {
   const months = monthRange(state.start, state.horizon);
@@ -87,7 +89,10 @@ export function project(state) {
     totals.net += net;
     return { month, salary: state.salaryCents, income, expenses, saving, net, cash, savings };
   });
-  return { rows, totals: { ...totals, cash, savings }, outside };
+  const lowest = Math.min(...rows.map(row => row.savings));
+  const first = rows.find(row => row.savings < 0);
+  const savingsBelowZero = first ? { month: first.month, lowest } : null;
+  return { rows, totals: { ...totals, cash, savings }, outside, warnings: { savingsBelowZero } };
 }
 
 const KINDS = ['income', 'expense', 'saving'];
