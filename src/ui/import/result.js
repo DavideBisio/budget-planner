@@ -1,7 +1,7 @@
 // The result list (IMP-10, IMP-11): recurring, one-time and ignored entries, a details popover
 // per entry for debugging the configuration, and manual overrides by transaction or payee.
 import { withOverride } from '../../core/overrides.js';
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { initPopovers } from '../popover.js';
 
@@ -341,7 +341,8 @@ export function mountResult(store, results) {
   function renderPanel() {
     const focused = document.activeElement?.dataset?.focus;
     const rows = rowsOf[active](state().result);
-    panel.replaceChildren(
+    fill(
+      panel,
       rows.length
         ? h(
             'ul',

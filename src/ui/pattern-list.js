@@ -1,7 +1,7 @@
 // An editable list of patterns (IMP-6, IMP-7): add, remove and, when order matters, move up and
 // down. Each item is a friendly pattern input plus a line of information (for example how many
 // rows it affects). Buttons are the primary way to reorder; nothing needs a pointer.
-import { h } from './dom.js';
+import { h, fill } from './dom.js';
 import { createPatternInput } from './pattern-input.js';
 
 /**
@@ -98,7 +98,7 @@ export function createPatternList({
       );
       return { input, row, note, more };
     });
-    list.replaceChildren(...items.map(i => i.row));
+    fill(list, ...items.map(i => i.row));
   }
 
   function refresh() {

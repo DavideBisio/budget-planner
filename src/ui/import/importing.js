@@ -1,6 +1,6 @@
 // Step 2 (IMP-4): choose statement files, keep their raw text, and show what was imported.
 import { summarizeImport } from '../../core/summary.js';
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 
 /** A name that is not used yet: "a.csv", then "a (2).csv", "a (3).csv". */
@@ -96,14 +96,15 @@ export function mountImporting(body, store, results) {
 
   store.subscribe(({ sources, files }) => {
     if (!sources.length) {
-      list.replaceChildren();
+      fill(list);
       results.show('import', false);
       return;
     }
     const summary = summarizeImport(files);
     const byFile = new Map(summary.files.map(f => [f.file, f]));
 
-    list.replaceChildren(
+    fill(
+      list,
       ...files.map((parsed, index) => {
         const line = byFile.get(parsed.file);
         const details = parsed.errors.length
@@ -135,7 +136,8 @@ export function mountImporting(body, store, results) {
 
     results.show('import', true);
     const problems = summary.links.map(linkProblem).filter(Boolean);
-    summaryBody.replaceChildren(
+    fill(
+      summaryBody,
       h(
         'p',
         {},

@@ -1,7 +1,7 @@
 // Step 1 (IMP-3): parsing settings, suggestions from a sample file, and a live preview.
 import { applySuggestion, sniffParse, suggestionLines } from '../../core/sniff.js';
 import { parseStatement } from '../../core/parser.js';
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { createPatternInput } from '../pattern-input.js';
 import { errorsIn, updateConfig } from './config-edit.js';
@@ -181,7 +181,7 @@ export function mountParsing(body, store, results) {
     const { config } = state;
     const sample = subjectOf(state);
     if (!sample) {
-      suggestions.replaceChildren();
+      fill(suggestions);
       suggestedFor = null;
       return;
     }
@@ -191,7 +191,8 @@ export function mountParsing(body, store, results) {
     const key = JSON.stringify([sample.name, lines]);
     if (key === suggestedFor) return;
     suggestedFor = key;
-    suggestions.replaceChildren(
+    fill(
+      suggestions,
       h('h3', {}, 'Suggested settings'),
       lines.length
         ? h(
@@ -235,15 +236,14 @@ export function mountParsing(body, store, results) {
     }
     results.show('parsing', true);
     if (errorsIn(config, 'parse').length) {
-      preview.replaceChildren(
-        h('p', { role: 'alert' }, 'Fix the settings on the left to see the preview.'),
-      );
+      fill(preview, h('p', { role: 'alert' }, 'Fix the settings on the left to see the preview.'));
       return;
     }
     const balances = [];
     if (result.opening !== null) balances.push(`Opening balance ${formatCents(result.opening)}`);
     if (result.closing !== null) balances.push(`Closing balance ${formatCents(result.closing)}`);
-    preview.replaceChildren(
+    fill(
+      preview,
       h('p', {}, `${sample.name}: ${result.transactions.length} transactions read.`),
       balances.length ? h('p', {}, balances.join(' · ')) : null,
       result.errors.length

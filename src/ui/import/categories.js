@@ -7,7 +7,7 @@ import {
   isProtectedCategory,
   renameCategory,
 } from '../../core/categories.js';
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -174,7 +174,8 @@ export function mountCategories(body, store, results) {
       totals.set(tx.category, entry);
     }
     const names = [...totals.keys()].sort();
-    summary.replaceChildren(
+    fill(
+      summary,
       h(
         'div',
         { class: 'table-wrap', tabindex: 0, role: 'region', 'aria-label': 'Totals by category' },
@@ -213,7 +214,7 @@ export function mountCategories(body, store, results) {
   function render(current) {
     error.textContent = message;
     error.hidden = !message;
-    list.replaceChildren(...current.config.cats.map(row));
+    fill(list, ...current.config.cats.map(row));
   }
 
   store.subscribe(current => {

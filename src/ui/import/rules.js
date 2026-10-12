@@ -1,6 +1,6 @@
 // Step 5 (IMP-8): ordered matching rules with a category and a kind, hit counts per rule, and the
 // list of transactions no rule matches. The first matching rule wins.
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { createPatternList } from '../pattern-list.js';
 import { errorsIn, updateConfig } from './config-edit.js';
@@ -49,7 +49,7 @@ export function mountRules(body, store, results) {
         const known = cats.includes(rule.cat);
         const options = known ? cats : [rule.cat, ...cats];
         if ([...cat.options].map(o => o.value).join('\n') !== options.join('\n')) {
-          cat.replaceChildren(...options.map(c => h('option', { value: c }, c)));
+          fill(cat, ...options.map(c => h('option', { value: c }, c)));
         }
         cat.value = rule.cat;
         kind.value = rule.kind;
@@ -87,7 +87,8 @@ export function mountRules(body, store, results) {
   function renderResult({ classified }) {
     results.show('rules', classified.length > 0);
     const unmatched = classified.filter(t => !t.rule);
-    summary.replaceChildren(
+    fill(
+      summary,
       h('p', { class: 'match-count' }, `Matched: ${classified.length - unmatched.length}`),
       h(
         'details',

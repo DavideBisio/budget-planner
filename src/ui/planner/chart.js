@@ -2,7 +2,7 @@
 // real size, so text stays readable on a phone. Values are written in the legend and in the data
 // table, so nothing needs hover. The geometry comes from core/chart.js.
 import { buildChart, monthLabel } from '../../core/chart.js';
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { savingsWarning } from './summary.js';
 
@@ -102,7 +102,7 @@ export function mountChart(root, store) {
         el('circle', { class: 'chart-dot savings', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 3 }),
       ),
     );
-    holder.replaceChildren(svg);
+    fill(holder, svg);
 
     const item = (cls, name, cents) =>
       h(
@@ -113,12 +113,14 @@ export function mountChart(root, store) {
         h('strong', {}, formatCents(cents)),
         ` after ${rows.length} months`,
       );
-    legend.replaceChildren(
+    fill(
+      legend,
       item('cash', 'Cash balance', totals.cash),
       item('savings', 'Savings', totals.savings),
     );
 
-    tableBody.replaceChildren(
+    fill(
+      tableBody,
       ...rows.map(row =>
         h(
           'tr',

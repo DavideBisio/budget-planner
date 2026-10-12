@@ -1,5 +1,5 @@
 // Step 3 (IMP-6): date range, own-account transfers and exclusions, with what each one removes.
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { createPatternList } from '../pattern-list.js';
 import { errorsIn, updateConfig } from './config-edit.js';
@@ -87,7 +87,8 @@ export function mountFiltering(body, store, results) {
   function renderResult({ transactions, filtered }) {
     results.show('filtering', transactions.length > 0);
     const { counts } = filtered;
-    summary.replaceChildren(
+    fill(
+      summary,
       h(
         'p',
         { class: 'match-count' },
