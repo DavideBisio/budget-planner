@@ -10,8 +10,9 @@ const item = (page, payee) => card(page).locator('.result-item', { hasText: paye
 
 async function importFixtures(page) {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
+  await page.getByRole('tab', { name: /^Output/ }).click();
 }
 
 test.beforeEach(async ({ page }) => {

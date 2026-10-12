@@ -10,9 +10,9 @@ const items = page => list(page).locator('.pattern-item');
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
-  await page.getByRole('button', { name: /^Payee extraction/ }).click();
+  await page.getByRole('tab', { name: /^Payees/ }).click();
 });
 
 test('IMP-7: the stored rule is shown and the result counts payees with none extracted', async ({

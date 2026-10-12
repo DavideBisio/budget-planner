@@ -5,8 +5,13 @@
 import { validateConfig } from './config.js';
 
 export const STEPS = [
+  { id: 'import', title: 'Import', purpose: 'Choose your statement files and your settings file.' },
   { id: 'parsing', title: 'Parsing', purpose: 'Tell the app how your bank file is laid out.' },
-  { id: 'import', title: 'Import', purpose: 'Choose your statement files and check the totals.' },
+  {
+    id: 'categories',
+    title: 'Categories',
+    purpose: 'Manage the categories and the rules that put each transaction in one.',
+  },
   {
     id: 'filtering',
     title: 'Filtering',
@@ -14,19 +19,13 @@ export const STEPS = [
   },
   {
     id: 'payees',
-    title: 'Payee extraction',
+    title: 'Payees',
     purpose: 'Read who was paid, or who paid you, from each description.',
   },
   {
-    id: 'rules',
-    title: 'Matching rules',
-    purpose: 'Give each transaction a category and a kind by what its description says.',
-  },
-  { id: 'categories', title: 'Categories', purpose: 'Manage the list of categories.' },
-  {
     id: 'output',
     title: 'Output',
-    purpose: 'Review the planner cards, then send them to the planner or download them.',
+    purpose: 'Download your settings, or send the planner cards to the planner.',
   },
 ];
 
@@ -50,25 +49,30 @@ export function stepStatuses({ config, files }) {
   const set = (id, status, reason = '') => result.set(id, { id, status, reason });
   const number = id => STEPS.findIndex(s => s.id === id) + 1;
 
-  const parseErrors = sectionErrors('parse');
-  if (parseErrors.length) set('parsing', 'attention', message(parseErrors[0]));
-  else set('parsing', 'valid');
-  const parsingReady = result.get('parsing').status === 'valid';
-
   const badFile = files.find(f => f.errors.length);
-  if (!parsingReady) set('import', 'waiting', 'Waiting for step 1 (parsing) to be valid.');
-  else if (badFile) set('import', 'attention', badFile.errors[0].message);
+  if (badFile) set('import', 'attention', badFile.errors[0].message);
   else set('import', files.length ? 'valid' : 'todo');
   const filesReady = files.length > 0 && !badFile;
 
+  const parseErrors = sectionErrors('parse');
+  if (!files.length) set('parsing', 'waiting', 'Waiting for step 1 (import) to have a file.');
+  else if (parseErrors.length) set('parsing', 'attention', message(parseErrors[0]));
+  else if (badFile) set('parsing', 'attention', badFile.errors[0].message);
+  else set('parsing', 'valid');
+  const parsingReady = result.get('parsing').status === 'valid';
+
   const missing = [];
-  if (!parsingReady) missing.push('step 1 (parsing) to be valid');
-  if (!filesReady) missing.push('step 2 (import) to have a readable file');
+  if (!filesReady) missing.push('step 1 (import) to have a readable file');
+  if (!parsingReady) missing.push('step 2 (parsing) to be valid');
   const waiting = missing.length ? `Waiting for ${missing.join(' and ')}.` : '';
 
-  const own = { filtering: 'filter', payees: 'payees', rules: 'rules', categories: 'cats' };
-  for (const id of Object.keys(own)) {
-    const found = sectionErrors(own[id]);
+  const own = {
+    categories: ['cats', 'rules'],
+    filtering: ['filter'],
+    payees: ['payees'],
+  };
+  for (const [id, sections] of Object.entries(own)) {
+    const found = sections.flatMap(sectionErrors);
     if (waiting) set(id, 'waiting', waiting);
     else if (found.length) set(id, 'attention', message(found[0]));
     else set(id, 'valid');
@@ -76,7 +80,8 @@ export function stepStatuses({ config, files }) {
 
   const broken = Object.keys(own)
     .filter(id => result.get(id).status === 'attention')
-    .map(number);
+    .map(number)
+    .sort((x, y) => x - y);
   if (waiting) set('output', 'waiting', waiting);
   else if (broken.length)
     set('output', 'attention', `Fix step${broken.length > 1 ? 's' : ''} ${list(broken)} first.`);

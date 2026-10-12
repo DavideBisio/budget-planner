@@ -1,12 +1,9 @@
-// The right-hand column: one card per step that has something to show (live preview or result).
+// The cards of a tab: each card lives in the right-hand column of the step it belongs to, and is
+// hidden until it has something to show.
 import { h } from '../dom.js';
 
-export function createResults(container, placeholder) {
+export function createResults(panes, homes = {}) {
   const cards = new Map();
-
-  function refresh() {
-    placeholder.hidden = [...cards.values()].some(card => !card.hidden);
-  }
 
   return {
     /** The body of the card for `id`, created on first use (hidden until `show(id, true)`). */
@@ -20,14 +17,14 @@ export function createResults(container, placeholder) {
           heading,
           body,
         );
-        container.append(card);
+        const [step, side = 'right'] = [].concat(homes[id] ?? id);
+        panes[step][side].append(card);
         cards.set(id, card);
       }
       return cards.get(id).querySelector('.result-body');
     },
     show(id, visible) {
       cards.get(id).hidden = !visible;
-      refresh();
     },
   };
 }

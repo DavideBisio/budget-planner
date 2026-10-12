@@ -11,9 +11,9 @@ const row = (page, name) =>
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
-  await page.getByRole('button', { name: /^Categories/ }).click();
+  await page.getByRole('tab', { name: /^Categories/ }).click();
 });
 
 test('IMP-9: lists the categories with the rules that use them', async ({ page }) => {
@@ -44,7 +44,7 @@ test('IMP-9: renaming a category updates the rules that use it', async ({ page }
   await input.fill('Home');
   await input.press('Enter');
   await expect(row(page, 'Home')).toContainText('Used by 1 rule');
-  await page.getByRole('button', { name: /^Matching rules/ }).click();
+  await page.getByRole('tab', { name: /^Categories/ }).click();
   await expect(
     page
       .getByRole('group', { name: 'Matching rules', exact: true })
@@ -52,7 +52,7 @@ test('IMP-9: renaming a category updates the rules that use it', async ({ page }
       .nth(1)
       .getByLabel('Category'),
   ).toHaveValue('Home');
-  await expect(page.getByRole('button', { name: /^Matching rules/ }).locator('.badge')).toHaveText(
+  await expect(page.getByRole('tab', { name: /^Categories/ }).locator('.badge')).toHaveText(
     'Ready',
   );
 });

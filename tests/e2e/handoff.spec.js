@@ -11,9 +11,9 @@ const handoffKey = page => page.evaluate(() => localStorage.getItem('budget-plan
 /** Import both fixtures on the import page, pick a mode, send, and open the planner. */
 async function sendFromImport(page, mode) {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
-  await page.getByRole('button', { name: /^Output/ }).click();
+  await page.getByRole('tab', { name: /^Output/ }).click();
   await page.locator('#step-body-output').getByLabel(mode).check();
   await page.getByRole('button', { name: 'Send to planner' }).click();
   await page.getByRole('link', { name: 'Open the planner' }).click();
@@ -74,7 +74,7 @@ test('STOR-6: sending the same cards to merge twice does not duplicate them', as
   await sendFromImport(page, 'Add to the planner’s cards');
   const once = (await storedPlan(page)).cards.flatMap(c => c.entries).length;
   await page.getByRole('link', { name: 'Import', exact: true }).click();
-  await page.getByRole('button', { name: /^Output/ }).click();
+  await page.getByRole('tab', { name: /^Output/ }).click();
   await page.locator('#step-body-output').getByLabel('Add to the planner’s cards').check();
   await page.getByRole('button', { name: 'Send to planner' }).click();
   await page.getByRole('link', { name: 'Open the planner' }).click();

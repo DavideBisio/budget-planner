@@ -59,44 +59,15 @@
   color: var(--accent);
 }
 
+.btn.danger {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--danger-text);
+}
+
 .btn[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-/* Step: numbered item of a guided flow */
-.steps {
-  counter-reset: step;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-3);
-}
-
-.step {
-  counter-increment: step;
-  display: grid;
-  grid-template-columns: var(--tap) minmax(0, 1fr);
-  gap: var(--space-3);
-  align-items: start;
-}
-
-.step::before {
-  content: counter(step);
-  display: grid;
-  place-items: center;
-  width: var(--tap);
-  height: var(--tap);
-  border-radius: 50%;
-  border: 2px solid var(--accent);
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.step[aria-current='step']::before {
-  background: var(--accent);
-  color: var(--accent-text);
 }
 
 /* Tooltip / popover: opens on tap, hover and keyboard focus (see popover.js) */
@@ -477,4 +448,9 @@ summary {
 
 .handoff-status {
   font-weight: 600;
+}
+
+/* A field hidden by the page must stay hidden although .field sets its own display. */
+.field[hidden] {
+  display: none;
 }

@@ -5,16 +5,16 @@ const JAN = 'tests/fixtures/comma-split.csv';
 const FEB = 'tests/fixtures/missing-balance.csv';
 
 const card = page => page.locator('#result-filtering');
-const badge = page => page.getByRole('button', { name: /^Filtering/ }).locator('.badge');
+const badge = page => page.getByRole('tab', { name: /^Filtering/ }).locator('.badge');
 const ownList = page =>
   page.getByRole('group', { name: 'Own-account transfer patterns', exact: true });
 const excludeList = page => page.getByRole('group', { name: 'Exclusion patterns', exact: true });
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
-  await page.getByRole('button', { name: /^Filtering/ }).click();
+  await page.getByRole('tab', { name: /^Filtering/ }).click();
 });
 
 test('IMP-6: shows how much data there is and keeps everything by default', async ({ page }) => {

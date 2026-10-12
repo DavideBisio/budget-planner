@@ -10,9 +10,9 @@ const rules = page => list(page).locator('.pattern-item');
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
-  await page.getByRole('button', { name: /^Matching rules/ }).click();
+  await page.getByRole('tab', { name: /^Categories/ }).click();
 });
 
 test('IMP-8: every rule shows its category, kind and how many transactions it matches', async ({

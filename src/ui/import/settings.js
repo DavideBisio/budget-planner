@@ -40,7 +40,22 @@ export function loadSettings() {
   return { config, overrides, notices };
 }
 
-export function mountSettings(body, store, notices) {
+/** The button that saves the configuration (never the transactions) as a file. */
+export function exportSettingsButton(store) {
+  return h(
+    'button',
+    {
+      class: 'btn',
+      type: 'button',
+      onclick: () => downloadText('budget-planner-settings.json', exportConfig(store.get().config)),
+    },
+    'Download settings (JSON)',
+  );
+}
+
+export function mountSettings(results, store, notices) {
+  const body = results.card('settings', 'Settings file');
+  results.show('settings', true);
   const messages = [...notices];
   let imported = '';
   let problems = [];
@@ -55,20 +70,6 @@ export function mountSettings(body, store, notices) {
   };
 
   body.append(
-    h(
-      'div',
-      { class: 'pattern-controls' },
-      h(
-        'button',
-        {
-          class: 'btn secondary',
-          type: 'button',
-          onclick: () =>
-            downloadText('budget-planner-settings.json', exportConfig(store.get().config)),
-        },
-        'Export settings',
-      ),
-    ),
     h(
       'div',
       { class: 'field' },

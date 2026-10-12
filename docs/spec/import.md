@@ -4,15 +4,16 @@ Requirements: [req/import.md](../req/import.md).
 
 ## IMP-1 and IMP-2 Guided sequence
 
-- One ordered list of seven step sections; DOM order equals the order in the requirement. A step header shows number, title, one-line purpose and a status badge: To do, Ready, Needs attention, or Waiting. Status is derived, never stored: `stepStatuses` in `src/core/steps.js` (unit tested) from the configuration validation and the imported files.
-- Step 2 waits for step 1; steps 3 to 7 are disabled with an explanation of what they wait for until steps 1 and 2 are valid. Each step is a button that collapses and expands its body; a progress bar (sticky on phones) counts the ready steps. Step bodies are mounted by their own issues (#23 onwards). On large screens the settings are in the left column and the live result in the right column; on phones steps collapse and expand.
-- Issue: #22. Verified by: unit tests on the statuses; e2e on the DOM order, badges, disabled steps, collapse, sticky progress and layout (`tests/e2e/stepper.spec.js`). E2E of status changes on user input arrives with the first editable step (#23, #24).
+- A row of six numbered tabs (`role="tablist"`), one panel per step with the purpose line, a settings column (left) and a result column (right), and a Next button. Order: import, parsing, categories (with the matching rules), filtering, payees, output. A tab shows number, title and a status badge: To do, Ready, Needs attention, or Waiting. Status is derived, never stored: `stepStatuses` in `src/core/steps.js` (unit tested) from the configuration validation and the imported files.
+- Parsing waits for a file; categories, filtering, payees and output wait until a file is imported and parsing is valid. A waiting tab is disabled and its reason is shown under the tab row. Arrow keys, Home and End move between enabled tabs.
+- The progress bar counts the steps that are ready and that the person has opened, so it starts at zero. It is sticky on phones. Cards that a step produces are mounted into the right column of the step (`createResults` in `src/ui/import/results.js`); cards of other steps live there too (the matching summary in categories, the result list in output).
+- Issues: #22, #89. Verified by: unit tests on the statuses; e2e on the tab order, badges, disabled tabs, keyboard, progress and layout (`tests/e2e/stepper.spec.js`).
 
 ## IMP-3 Parsing step
 
 - Fields: delimiter, decimal, date format, column names, balance patterns. Suggestions are computed by sniffing a chosen file and offered, never applied silently.
 - `sniffParse` in `src/core/sniff.js` (unit tested) suggests delimiter, decimal, date format and column names from a chosen sample file; a date format is left out when the dates are ambiguous. The UI lists the suggestions and applies them only on "Apply suggestions".
-- Live preview in the right column: first rows as parsed, balances found, skipped rows, errors in plain language; it asks for a fix while the settings do not validate. The preview uses the chosen sample file (files imported in step 2 join it in #24).
+- Live preview in the right column: first rows as parsed, balances found, skipped rows, errors in plain language; it asks for a fix while the settings do not validate. It uses the first imported file, which is also where suggestions come from (there is no separate sample input).
 - Issue: #23. Verified by: unit tests on sniffing; e2e in `tests/e2e/parsing.spec.js` with a fictional fixture and the sample.
 
 ## IMP-4 Import step and summary
@@ -50,7 +51,7 @@ Requirements: [req/import.md](../req/import.md).
 
 ## IMP-13 and IMP-14 Configuration file and persistence
 
-- Export writes the versioned configuration only (sections `parse`, `filter`, `payees`, `rules`, `cats` and the version), never transactions or imported files. Import validates (ENG-1), upgrades older versions, and lists problems by field path with the same plain-language messages as the pattern input; nothing changes when there are problems. Logic: `src/core/config-file.js` (unit tested, includes the sample file); UI: the settings card in `src/ui/import/settings.js`.
+- Export (a button in the output step) writes the versioned configuration only (sections `parse`, `filter`, `payees`, `rules`, `cats` and the version), never transactions or imported files. Import validates (ENG-1), upgrades older versions, and lists problems by field path with the same plain-language messages as the pattern input; nothing changes when there are problems. Logic: `src/core/config-file.js` (unit tested, includes the sample file); UI: the settings card (load) in the import step and the download button in the output step, `src/ui/import/settings.js`.
 - The configuration and the manual changes are saved in the browser after every edit (keys `config` and `overrides`, each wrapped as `{version, data}`) and loaded on the next visit. `src/core/envelope.js` (unit tested) reads an envelope and applies migrations in order; `src/ui/storage.js` is the only code that touches `localStorage` (the handoff goes through it too). A value from a newer version is left untouched and the user is told that changes will not be saved; an unreadable value falls back to the defaults with a notice; a migrated value is first copied to a backup key.
 - The notice for full or unavailable storage, clear-all, the imported files and the planner state were added in #39 (see spec/storage.md).
 - Issues: #32, #39. Verified by: unit tests; e2e in `tests/e2e/settings.spec.js`.

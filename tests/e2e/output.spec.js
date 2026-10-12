@@ -10,9 +10,9 @@ const body = page => page.locator('#step-body-output');
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
-  await page.getByRole('button', { name: /^Output/ }).click();
+  await page.getByRole('tab', { name: /^Output/ }).click();
 });
 
 test('IMP-12: the cards are previewed with totals for the whole period', async ({ page }) => {
@@ -77,10 +77,11 @@ test('IMP-12: sending stores the payload for the planner and says so', async ({ 
 });
 
 test('IMP-12: with nothing to send, the buttons are off', async ({ page }) => {
+  await page.getByRole('tab', { name: /^Import/ }).click();
   for (const name of ['comma-split.csv', 'missing-balance.csv']) {
     await page.getByRole('button', { name: `Remove ${name}` }).click();
   }
-  await expect(page.getByRole('button', { name: /^Output/ })).toBeDisabled();
+  await expect(page.getByRole('tab', { name: /^Output/ })).toBeDisabled();
 });
 
 test('layout holds with the output step open', async ({ page }, info) => {

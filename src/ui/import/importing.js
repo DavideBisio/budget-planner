@@ -1,4 +1,4 @@
-// Step 2 (IMP-4): choose statement files, keep their raw text, and show what was imported.
+// Step 1 (IMP-4): choose statement files, keep their raw text, and show what was imported.
 import { summarizeImport } from '../../core/summary.js';
 import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
@@ -89,12 +89,15 @@ export function mountImporting(body, store, results) {
       h('span', { class: 'hint' }, 'Select one or more files.'),
     ),
     dropzone,
-    list,
   );
+
+  const listBody = results.card('files', 'Loaded files');
+  listBody.append(list);
 
   const summaryBody = results.card('import', 'Import summary');
 
   store.subscribe(({ sources, files }) => {
+    results.show('files', sources.length > 0);
     if (!sources.length) {
       fill(list);
       results.show('import', false);
@@ -123,7 +126,7 @@ export function mountImporting(body, store, results) {
           h(
             'button',
             {
-              class: 'btn secondary',
+              class: 'btn danger',
               type: 'button',
               'aria-label': `Remove ${parsed.file}`,
               onclick: () => store.set({ sources: sources.filter((_, i) => i !== index) }),

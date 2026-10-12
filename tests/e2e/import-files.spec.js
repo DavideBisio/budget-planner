@@ -8,11 +8,11 @@ const FEB = 'tests/fixtures/missing-balance.csv';
 const summary = page => page.locator('#result-import');
 const files = page => page.getByRole('list', { name: 'Imported files' });
 const badge = (page, title) =>
-  page.getByRole('button', { name: new RegExp(`^${title}`) }).locator('.badge');
+  page.getByRole('tab', { name: new RegExp(`^${title}`) }).locator('.badge');
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
 });
 
 test('IMP-4: importing files shows the totals and the balance check', async ({ page }) => {
@@ -58,15 +58,20 @@ test('IMP-4: files are kept as raw text and re-parsed when the parsing settings 
   await page.getByLabel('Statement files').setInputFiles(JAN);
   await expect(badge(page, 'Import')).toHaveText('Ready');
 
+  await page.getByRole('tab', { name: /^Parsing/ }).click();
   await page.getByLabel('Description column').fill('Nonexistent');
   await expect(badge(page, 'Import')).toHaveText('Needs attention');
-  await expect(page.getByRole('button', { name: /^Import/ }).locator('.step-reason')).toContainText(
+  await expect(badge(page, 'Parsing')).toHaveText('Needs attention');
+  await page.getByRole('tab', { name: /^Import/ }).click();
+  await expect(page.getByRole('tab', { name: /^Import/ }).locator('.step-reason')).toContainText(
     'comma-split.csv',
   );
   await expect(files(page)).toContainText('"Nonexistent" not found');
 
+  await page.getByRole('tab', { name: /^Parsing/ }).click();
   await page.getByLabel('Description column').fill('Description');
   await expect(badge(page, 'Import')).toHaveText('Ready');
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await expect(summary(page)).toContainText('3 transactions over 1 month');
 });
 

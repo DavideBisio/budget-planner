@@ -1,10 +1,11 @@
-// Step 7 (IMP-12): preview the planner cards with totals, choose replace or merge, and send the
-// cards to the planner or download them. The payload itself is built in core/handoff.js.
+// Step 6 (IMP-12, IMP-13): download the settings (left); preview the planner cards with totals,
+// choose replace or merge, and send the cards to the planner or download them (right). The payload itself is built in core/handoff.js.
 import { buildHandoff, describeHandoff } from '../../core/handoff.js';
 import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { downloadText } from '../download.js';
 import { sendToPlanner } from '../handoff.js';
+import { exportSettingsButton } from './settings.js';
 
 const KIND_LABEL = { income: 'Income', expense: 'Expense', saving: 'Saving' };
 
@@ -43,6 +44,14 @@ export function mountOutput(body, store, results) {
     'Download JSON',
   );
   body.append(
+    h('p', {}, 'Keep your categories, rules and settings in a file to load next time.'),
+    h('p', { class: 'hint' }, 'The file never contains your transactions.'),
+    h('div', { class: 'pattern-controls' }, exportSettingsButton(store)),
+  );
+
+  const card = results.card('output', 'Send to the planner');
+  const previewBody = h('div', {});
+  card.append(
     h(
       'fieldset',
       { class: 'group' },
@@ -52,9 +61,9 @@ export function mountOutput(body, store, results) {
     ),
     status,
     h('div', { class: 'pattern-controls' }, send, download),
+    previewBody,
   );
-
-  const preview = results.card('output', 'Planner cards');
+  const preview = previewBody;
   const payload = () => {
     const { result } = store.get();
     return buildHandoff(result.cards, result.months, mode);
@@ -89,7 +98,7 @@ export function mountOutput(body, store, results) {
   function render({ result }) {
     const { cards } = result;
     const count = cards.recurring.length + cards.oneTime.length;
-    results.show('output', count > 0);
+    results.show('output', true);
     send.disabled = count === 0;
     download.disabled = count === 0;
     statusText.textContent = count ? describeHandoff(cards, mode) : 'There are no cards to send.';

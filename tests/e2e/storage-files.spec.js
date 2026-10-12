@@ -9,14 +9,14 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
   await expect(files(page)).toHaveCount(2);
 });
 
 test('STOR-1, ENG-10: imported files are still there after a reload', async ({ page }) => {
   await page.reload();
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await expect(files(page)).toHaveCount(2);
   await expect(page.locator('#result-empty')).toBeHidden();
 });
@@ -28,7 +28,7 @@ test('STOR-1: a removed file stays removed after a reload', async ({ page }) => 
     .click();
   await expect(files(page)).toHaveCount(1);
   await page.reload();
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await expect(files(page)).toHaveCount(1);
 });
 
@@ -45,7 +45,7 @@ test('STOR-3: clearing all data also forgets the files', async ({ page }) => {
   page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: 'Clear all data' }).click();
   await page.waitForLoadState('load');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await expect(files(page)).toHaveCount(0);
 });
 

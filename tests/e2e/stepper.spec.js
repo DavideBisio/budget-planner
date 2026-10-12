@@ -1,65 +1,83 @@
 import { expect, test } from '@playwright/test';
-import { expectNoHorizontalOverflow, expectTapTargets } from './helpers.js';
+import { expectNoHorizontalOverflow, expectTapTargets, openStep } from './helpers.js';
 
-const TITLES = [
-  'Parsing',
-  'Import',
-  'Filtering',
-  'Payee extraction',
-  'Matching rules',
-  'Categories',
-  'Output',
-];
+const TITLES = ['Import', 'Parsing', 'Categories', 'Filtering', 'Payees', 'Output'];
+const JAN = 'tests/fixtures/comma-split.csv';
 
-const stepHeader = (page, title) => page.getByRole('button', { name: new RegExp(`^${title}`) });
+const tabOf = (page, title) => page.getByRole('tab', { name: new RegExp(`^${title}`) });
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
 });
 
-test('IMP-1: seven numbered steps in the required DOM order', async ({ page }) => {
-  const steps = page.locator('ol.steps > li');
-  await expect(steps).toHaveCount(7);
-  const titles = await page.locator('ol.steps > li .step-title').allTextContents();
-  expect(titles).toEqual(TITLES);
-  const numbers = await page.locator('ol.steps .step-number').allTextContents();
-  expect(numbers).toEqual(['1', '2', '3', '4', '5', '6', '7']);
+test('IMP-1: six numbered tabs in the required order', async ({ page }) => {
+  await expect(page.getByRole('tab')).toHaveCount(6);
+  expect(await page.locator('.step-tab .step-title').allTextContents()).toEqual(TITLES);
+  expect(await page.locator('.step-tab .step-number').allTextContents()).toEqual([
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+  ]);
 });
 
 test('IMP-2: every step shows a purpose line and a status badge', async ({ page }) => {
-  await expect(page.locator('ol.steps .step-purpose')).toHaveCount(7);
-  await expect(page.locator('ol.steps .badge')).toHaveCount(7);
-  await expect(stepHeader(page, 'Parsing').locator('.badge')).toHaveText('Ready');
-  await expect(stepHeader(page, 'Import').locator('.badge')).toHaveText('To do');
+  await expect(page.locator('.step-tab .badge')).toHaveCount(6);
+  await expect(page.locator('.tab-panel .step-purpose')).toHaveCount(6);
+  await expect(tabOf(page, 'Import').locator('.badge')).toHaveText('To do');
+  await page.getByLabel('Statement files').setInputFiles(JAN);
+  await expect(tabOf(page, 'Import').locator('.badge')).toHaveText('Ready');
+  await expect(tabOf(page, 'Parsing').locator('.badge')).toHaveText('Ready');
 });
 
 test('IMP-2: later steps are disabled and explain what they wait for', async ({ page }) => {
-  for (const title of TITLES.slice(2)) {
-    const header = stepHeader(page, title);
-    await expect(header).toBeDisabled();
-    await expect(header.locator('.badge')).toHaveText('Waiting');
-    await expect(header.locator('.step-reason')).toContainText('step 2');
+  for (const title of TITLES.slice(1)) {
+    const tab = tabOf(page, title);
+    await expect(tab).toBeDisabled();
+    await expect(tab.locator('.badge')).toHaveText('Waiting');
+    await expect(tab.locator('.step-reason')).toContainText('step 1');
   }
-  await expect(stepHeader(page, 'Import')).toBeEnabled();
+  await expect(page.locator('#tabs-note')).toContainText('Waiting for step 1');
+  await expect(tabOf(page, 'Import')).toBeEnabled();
+  await page.getByLabel('Statement files').setInputFiles(JAN);
+  await expect(tabOf(page, 'Parsing')).toBeEnabled();
+  await expect(page.locator('#tabs-note')).toBeHidden();
 });
 
-test('the first open step is parsing; headers collapse and expand their body', async ({ page }) => {
-  const parsing = stepHeader(page, 'Parsing');
-  const importStep = stepHeader(page, 'Import');
-  await expect(parsing).toHaveAttribute('aria-expanded', 'true');
-  await expect(importStep).toHaveAttribute('aria-expanded', 'false');
-  await importStep.click();
-  await expect(importStep).toHaveAttribute('aria-expanded', 'true');
+test('only the selected tab shows its panel; the tabs follow the arrow keys', async ({ page }) => {
+  await page.getByLabel('Statement files').setInputFiles(JAN);
+  await expect(tabOf(page, 'Import')).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('#step-body-import')).toBeVisible();
-  await parsing.click();
-  await expect(parsing).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.locator('#step-body-parsing')).toBeHidden();
+  await openStep(page, 'Parsing');
+  await expect(tabOf(page, 'Parsing')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#step-body-parsing')).toBeVisible();
+  await expect(page.locator('#step-body-import')).toBeHidden();
+  await page.keyboard.press('ArrowRight');
+  await expect(tabOf(page, 'Categories')).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('End');
+  await expect(tabOf(page, 'Output')).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('Home');
+  await expect(tabOf(page, 'Import')).toHaveAttribute('aria-selected', 'true');
 });
 
-test('progress counts the steps that are ready', async ({ page }) => {
-  const progress = page.getByRole('progressbar', { name: 'Steps ready' });
-  await expect(progress).toHaveAttribute('value', '1');
-  await expect(page.locator('.progress-label')).toHaveText('1 of 7 steps ready');
+test('the Next button opens the following step', async ({ page }) => {
+  await expect(page.getByRole('button', { name: 'Next: Parsing' })).toBeDisabled();
+  await page.getByLabel('Statement files').setInputFiles(JAN);
+  await page.getByRole('button', { name: 'Next: Parsing' }).click();
+  await expect(tabOf(page, 'Parsing')).toHaveAttribute('aria-selected', 'true');
+});
+
+test('progress starts at zero and advances as steps are done and opened', async ({ page }) => {
+  const progress = page.getByRole('progressbar', { name: 'Steps done' });
+  await expect(progress).toHaveAttribute('value', '0');
+  await expect(page.locator('.progress-label')).toHaveText('0 of 6 steps done');
+  await page.getByLabel('Statement files').setInputFiles(JAN);
+  await expect(page.locator('.progress-label')).toHaveText('1 of 6 steps done');
+  await openStep(page, 'Parsing');
+  await expect(page.locator('.progress-label')).toHaveText('2 of 6 steps done');
+  await expect(progress).toHaveAttribute('value', '2');
 });
 
 test('the progress bar stays visible while scrolling on a phone', async ({ page }, info) => {
@@ -71,17 +89,17 @@ test('the progress bar stays visible while scrolling on a phone', async ({ page 
   await expect(page.locator('.progress')).toBeInViewport();
 });
 
-test('settings left and live result right on large screens, one column on phones', async ({
+test('settings left and results right on large screens, one column on phones', async ({
   page,
 }, info) => {
-  const steps = await page.locator('ol.steps').boundingBox();
-  const result = await page.locator('#result-empty').boundingBox();
-  const settings = await page.locator('#settings').boundingBox();
+  await page.getByLabel('Statement files').setInputFiles(JAN);
+  const left = await page.locator('#step-body-import .stack').first().boundingBox();
+  const right = await page.locator('#result-settings').boundingBox();
   if (info.project.name === 'desktop') {
-    expect(result.x).toBeGreaterThan(steps.x + steps.width - 1);
-    expect(Math.abs(result.y - settings.y)).toBeLessThan(80);
+    expect(right.x).toBeGreaterThan(left.x + left.width - 1);
+    expect(Math.abs(right.y - left.y)).toBeLessThan(80);
   } else {
-    expect(result.y).toBeGreaterThan(steps.y + steps.height - 1);
+    expect(right.y).toBeGreaterThan(left.y + left.height - 1);
   }
 });
 
