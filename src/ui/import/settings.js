@@ -4,7 +4,7 @@ import { exportConfig, importConfig } from '../../core/config-file.js';
 import { defaultConfig, migrateConfig, validateConfig } from '../../core/config.js';
 import { SCHEMAS } from '../../core/schemas.js';
 import { emptyOverrides, isOverrides } from '../../core/overrides.js';
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { downloadText } from '../download.js';
 import { load, save } from '../storage.js';
 
@@ -49,12 +49,8 @@ export function mountSettings(body, store, notices) {
   const list = h('ul', { class: 'plain', role: 'alert' });
   const fileId = uid('settings');
   const render = () => {
-    status.replaceChildren(
-      ...[...messages, imported].filter(Boolean).map(text => h('p', {}, text)),
-    );
-    list.replaceChildren(
-      ...problems.map(e => h('li', {}, e.path ? `${e.path}: ${e.message}` : e.message)),
-    );
+    fill(status, ...[...messages, imported].filter(Boolean).map(text => h('p', {}, text)));
+    fill(list, ...problems.map(e => h('li', {}, e.path ? `${e.path}: ${e.message}` : e.message)));
     list.hidden = problems.length === 0;
   };
 

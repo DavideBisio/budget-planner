@@ -8,7 +8,7 @@ import {
   parsePattern,
   testPattern,
 } from '../core/pattern.js';
-import { h, uid } from './dom.js';
+import { h, uid, fill } from './dom.js';
 
 const TEXT_MODES = ['contains', 'starts', 'ends', 'equals'];
 
@@ -176,7 +176,8 @@ export function createPatternInput({ label, value = '', capture = false, texts =
   }
 
   function renderChips() {
-    chips.replaceChildren(
+    fill(
+      chips,
       ...state.words.map(word =>
         h(
           'li',
@@ -211,19 +212,19 @@ export function createPatternInput({ label, value = '', capture = false, texts =
     stored.textContent = pattern || '(nothing yet)';
 
     if (!pattern || message) {
-      feedback.replaceChildren(
+      fill(
+        feedback,
         h('p', { class: 'hint' }, pattern ? '' : 'Type something to see which descriptions match.'),
       );
       return;
     }
     if (!samples.length) {
-      feedback.replaceChildren(
-        h('p', { class: 'hint' }, 'Import a file to see which descriptions match.'),
-      );
+      fill(feedback, h('p', { class: 'hint' }, 'Import a file to see which descriptions match.'));
       return;
     }
     const result = testPattern(pattern, samples, { capture });
-    feedback.replaceChildren(
+    fill(
+      feedback,
       h(
         'p',
         { class: 'match-count' },

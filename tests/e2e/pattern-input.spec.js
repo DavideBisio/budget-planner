@@ -83,3 +83,11 @@ test('IMP-5: touch targets and layout on the phone', async ({ page }, info) => {
   await expectNoHorizontalOverflow(page);
   if (info.project.name === 'mobile') await expectTapTargets(page);
 });
+
+test('IMP-5: no stray "null" text appears on the import page', async ({ page }) => {
+  await page.goto('/import.html');
+  await page.getByLabel('Statement files').setInputFiles(['tests/fixtures/comma-split.csv']);
+  for (const toggle of await page.locator('.step-toggle:not([disabled])').all())
+    await toggle.click();
+  await expect(page.locator('body')).not.toContainText('null');
+});

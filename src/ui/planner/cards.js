@@ -11,7 +11,7 @@ import {
   updateCard,
   updateEntry,
 } from '../../core/planner.js';
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { monthLabel } from '../../core/chart.js';
 import { initPopovers } from '../popover.js';
@@ -217,7 +217,8 @@ export function mountCards(root, store) {
       remove.textContent = 'Remove';
       remove.setAttribute('aria-label', `Remove entry ${name}`);
       moveSelect.setAttribute('aria-label', `Move ${name} to`);
-      moveSelect.replaceChildren(
+      fill(
+        moveSelect,
         h('option', { value: '' }, 'Move to…'),
         ...cards
           .filter(other => other.id !== owner.id)
@@ -357,7 +358,7 @@ export function mountCards(root, store) {
       key = next;
       nodes.clear();
       for (const card of plan.cards) nodes.set(card.id, cardView(card));
-      list.replaceChildren(...plan.cards.map(card => nodes.get(card.id).el));
+      fill(list, ...plan.cards.map(card => nodes.get(card.id).el));
       initPopovers(list);
     }
     empty.hidden = plan.cards.length > 0;

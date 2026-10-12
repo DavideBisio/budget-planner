@@ -2,7 +2,7 @@
 // JSON file built by core/backup.js; restoring validates the whole file before anything is
 // written, asks first, and writes all sections or none.
 import { buildBackup, parseBackup } from '../core/backup.js';
-import { h, uid } from './dom.js';
+import { h, uid, fill } from './dom.js';
 import { downloadText } from './download.js';
 import { clearAll, load, saveAll } from './storage.js';
 
@@ -25,7 +25,7 @@ export function mountBackup(footer, showNotice) {
   const status = h('p', { class: 'hint', role: 'status' });
   const problems = h('div', { role: 'alert', hidden: true });
   const showProblems = (...children) => {
-    problems.replaceChildren(...children);
+    fill(problems, ...children);
     problems.hidden = children.length === 0;
   };
 

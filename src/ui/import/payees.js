@@ -1,5 +1,5 @@
 // Step 4 (IMP-7): how the counterparty is read from each description, in order, with a test panel.
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { createPatternList } from '../pattern-list.js';
 import { updateConfig } from './config-edit.js';
@@ -71,7 +71,8 @@ export function mountPayees(body, store, results) {
       rows.every((tx, i) => tx.id === shown[i].id && tx.file === shown[i].file);
     const keep = pick.selectedIndex;
     if (!same) {
-      pick.replaceChildren(
+      fill(
+        pick,
         ...rows.map(tx => h('option', {}, `${tx.date} · ${formatCents(tx.amount)} · ${tx.desc}`)),
       );
       if (keep >= 0 && keep < rows.length) pick.selectedIndex = keep;
@@ -91,7 +92,8 @@ export function mountPayees(body, store, results) {
       counts.set(tx.payeeKey, entry);
     }
     const top = [...counts.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
-    summary.replaceChildren(
+    fill(
+      summary,
       h(
         'ul',
         { class: 'plain' },

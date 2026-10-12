@@ -1,7 +1,7 @@
 // Step 7 (IMP-12): preview the planner cards with totals, choose replace or merge, and send the
 // cards to the planner or download them. The payload itself is built in core/handoff.js.
 import { buildHandoff, describeHandoff } from '../../core/handoff.js';
-import { h, uid } from '../dom.js';
+import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { downloadText } from '../download.js';
 import { sendToPlanner } from '../handoff.js';
@@ -93,7 +93,8 @@ export function mountOutput(body, store, results) {
     send.disabled = count === 0;
     download.disabled = count === 0;
     statusText.textContent = count ? describeHandoff(cards, mode) : 'There are no cards to send.';
-    sentNote.replaceChildren(
+    fill(
+      sentNote,
       ...(sent ? [sent] : []),
       ...(sent.startsWith('Cards sent')
         ? [' ', h('a', { href: './index.html' }, 'Open the planner')]
@@ -101,7 +102,8 @@ export function mountOutput(body, store, results) {
     );
 
     const { byKind, net } = cards.totals;
-    preview.replaceChildren(
+    fill(
+      preview,
       h(
         'p',
         { class: 'match-count' },

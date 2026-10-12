@@ -3,7 +3,7 @@
 // payload from a newer version is left where it is.
 import { HANDOFF_VERSION } from '../../core/handoff.js';
 import { applyHandoff, validateHandoff } from '../../core/handoff-apply.js';
-import { h } from '../dom.js';
+import { h, fill } from '../dom.js';
 import { load, remove } from '../storage.js';
 
 const entryCount = plan => plan.cards.reduce((sum, card) => sum + card.entries.length, 0);
@@ -14,7 +14,8 @@ export function receiveHandoff(store, root) {
   if (status === 'empty' || status === 'unavailable') return;
 
   const show = (kind, text) =>
-    root.replaceChildren(
+    fill(
+      root,
       h(
         'p',
         {

@@ -1,6 +1,6 @@
 // The balance summary that stays in view on a phone, and the totals card (PLAN-4, PLAN-5).
 import { monthLabel } from '../../core/chart.js';
-import { h } from '../dom.js';
+import { h, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 
 /** The sentence that warns about negative savings, or an empty text when there is nothing to warn about. */
@@ -14,7 +14,8 @@ export function savingsWarning({ warnings }) {
 export function mountSummary(summary, totals, store) {
   function render({ plan, projection }) {
     const t = projection.totals;
-    summary.replaceChildren(
+    fill(
+      summary,
       h(
         'span',
         { class: 'summary-item' },
@@ -26,7 +27,8 @@ export function mountSummary(summary, totals, store) {
     );
     const row = (label, cents) =>
       h('div', { class: 'total-row' }, h('dt', {}, label), h('dd', {}, formatCents(cents)));
-    totals.replaceChildren(
+    fill(
+      totals,
       h(
         'dl',
         { class: 'totals' },
