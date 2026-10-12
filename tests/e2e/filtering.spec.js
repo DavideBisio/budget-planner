@@ -5,16 +5,16 @@ const JAN = 'tests/fixtures/comma-split.csv';
 const FEB = 'tests/fixtures/missing-balance.csv';
 
 const card = page => page.locator('#result-filtering');
-const badge = page => page.getByRole('button', { name: /^Filtering/ }).locator('.badge');
+const badge = page => page.getByRole('tab', { name: /^Filtering/ }).locator('.badge');
 const ownList = page =>
   page.getByRole('group', { name: 'Own-account transfer patterns', exact: true });
 const excludeList = page => page.getByRole('group', { name: 'Exclusion patterns', exact: true });
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
-  await page.getByRole('button', { name: /^Filtering/ }).click();
+  await page.getByRole('tab', { name: /^Filtering/ }).click();
 });
 
 test('IMP-6: shows how much data there is and keeps everything by default', async ({ page }) => {
@@ -45,6 +45,8 @@ test('IMP-6: an exclusion pattern shows how many rows it removes', async ({ page
 
 test('IMP-6: own-account transfers follow their switch and patterns', async ({ page }) => {
   const first = ownList(page).locator('.pattern-item').first();
+  await expect(first).toContainText('contains "transfer to own account"');
+  await first.getByRole('button', { name: /^Own-account transfer patterns 1/ }).click();
   await expect(first.getByLabel('Text to look for')).toHaveValue('transfer to own account');
   await expect(first).toContainText('Removes 0 rows');
   await first.getByLabel('Text to look for').fill('streaming');
@@ -70,4 +72,34 @@ test('layout holds with the filtering step open', async ({ page }, info) => {
   await page.getByRole('button', { name: 'Add an exclusion pattern' }).click();
   await expectNoHorizontalOverflow(page);
   if (info.project.name === 'mobile') await expectTapTargets(page);
+});
+
+test('IMP-5, IMP-6: patterns are compact lines that open into a full card and close again', async ({
+  page,
+}) => {
+  const item = ownList(page).locator('.pattern-item').first();
+  const toggle = item.getByRole('button', { name: /^Own-account transfer patterns 1/ });
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(item.getByLabel('Text to look for')).toBeHidden();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(item.getByLabel('Text to look for')).toBeVisible();
+  await item.getByLabel('Text to look for').press('Escape');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(toggle).toBeFocused();
+  await toggle.click();
+  await toggle.click();
+  await expect(item.getByLabel('Text to look for')).toBeHidden();
+});
+
+test('IMP-5, IMP-6: a new pattern opens for editing and the compact line says what it does', async ({
+  page,
+}) => {
+  await page.getByRole('button', { name: 'Add an exclusion pattern' }).click();
+  const item = excludeList(page).locator('.pattern-item');
+  await expect(item.getByLabel('Text to look for')).toBeVisible();
+  await item.getByLabel('Text to look for').fill('landlord');
+  await item.getByRole('button', { name: /^Exclusion patterns 1/ }).click();
+  await expect(item).toContainText('contains "landlord"');
+  await expect(item.getByLabel('Text to look for')).toBeHidden();
 });

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expectNoHorizontalOverflow, expectTapTargets } from './helpers.js';
+import { expectNoHorizontalOverflow, expectTapTargets, openParsing } from './helpers.js';
 
 const SAMPLE = 'data/sample-bank-report.csv';
 
@@ -9,7 +9,7 @@ const mode = page => opening(page).getByLabel('Match when the text');
 const stored = page => opening(page).locator('code');
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/import.html');
+  await openParsing(page, SAMPLE);
 });
 
 test('IMP-5: a stored regular expression opens in the closest mode', async ({ page }) => {
@@ -37,7 +37,9 @@ test('IMP-5: several words become chips that can be added and removed with the k
   await add.press('Enter');
   await add.fill('start of period');
   await opening(page).getByRole('button', { name: 'Add', exact: true }).click();
-  await expect(opening(page).getByRole('listitem')).toHaveCount(2);
+  await expect(
+    opening(page).getByRole('list', { name: 'Words' }).getByRole('listitem'),
+  ).toHaveCount(2);
   await expect(stored(page)).toHaveText('opening|start of period');
   await opening(page).getByRole('button', { name: 'Remove opening' }).click();
   await expect(stored(page)).toHaveText('start of period');
@@ -46,8 +48,6 @@ test('IMP-5: several words become chips that can be added and removed with the k
 test('IMP-5: live feedback counts matches and marks them against the imported descriptions', async ({
   page,
 }) => {
-  await expect(opening(page)).toContainText('Import a file to see which descriptions match');
-  await page.getByLabel('Sample statement').setInputFiles(SAMPLE);
   await expect(opening(page).locator('.match-count')).toHaveText(/^1 of \d+ descriptions match\.$/);
   await expect(opening(page).locator('mark')).toHaveText('Opening balance');
   await expect(opening(page).getByText('Not matching')).toBeVisible();
@@ -76,7 +76,6 @@ test('IMP-5: switching back from advanced keeps what can be read as words', asyn
 });
 
 test('IMP-5: touch targets and layout on the phone', async ({ page }, info) => {
-  await page.getByLabel('Sample statement').setInputFiles(SAMPLE);
   await mode(page).selectOption('anyOf');
   await opening(page).getByLabel('Add a word').fill('opening');
   await opening(page).getByRole('button', { name: 'Add', exact: true }).click();
@@ -87,7 +86,6 @@ test('IMP-5: touch targets and layout on the phone', async ({ page }, info) => {
 test('IMP-5: no stray "null" text appears on the import page', async ({ page }) => {
   await page.goto('/import.html');
   await page.getByLabel('Statement files').setInputFiles(['tests/fixtures/comma-split.csv']);
-  for (const toggle of await page.locator('.step-toggle:not([disabled])').all())
-    await toggle.click();
+  for (const toggle of await page.locator('.step-tab:not([disabled])').all()) await toggle.click();
   await expect(page.locator('body')).not.toContainText('null');
 });

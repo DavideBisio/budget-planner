@@ -10,9 +10,9 @@ const body = page => page.locator('#step-body-output');
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
-  await page.getByRole('button', { name: /^Output/ }).click();
+  await page.getByRole('tab', { name: /^Output/ }).click();
 });
 
 test('IMP-12: the cards are previewed with totals for the whole period', async ({ page }) => {
@@ -38,11 +38,11 @@ test('IMP-12: the preview follows manual changes', async ({ page }) => {
 
 test('IMP-12: the mode decides what the confirmation says', async ({ page }) => {
   await expect(body(page).getByLabel('Replace the planner’s cards')).toBeChecked();
-  await expect(body(page).getByRole('status')).toContainText(
+  await expect(page.locator('#result-output').getByRole('status')).toContainText(
     'current cards will be replaced by 2 recurring cards and 1 one-time card',
   );
   await body(page).getByLabel('Add to the planner’s cards').check();
-  await expect(body(page).getByRole('status')).toContainText(
+  await expect(page.locator('#result-output').getByRole('status')).toContainText(
     '2 recurring cards and 1 one-time card will be added to the planner',
   );
 });
@@ -63,7 +63,7 @@ test('IMP-12: the payload downloads as JSON with cards only', async ({ page }) =
 
 test('IMP-12: sending stores the payload for the planner and says so', async ({ page }) => {
   await body(page).getByRole('button', { name: 'Send to planner' }).click();
-  await expect(body(page).getByRole('status')).toContainText('Cards sent');
+  await expect(page.locator('#result-output').getByRole('status')).toContainText('Cards sent');
   await expect(body(page).getByRole('link', { name: 'Open the planner' })).toHaveAttribute(
     'href',
     './index.html',
@@ -77,10 +77,11 @@ test('IMP-12: sending stores the payload for the planner and says so', async ({ 
 });
 
 test('IMP-12: with nothing to send, the buttons are off', async ({ page }) => {
+  await page.getByRole('tab', { name: /^Import/ }).click();
   for (const name of ['comma-split.csv', 'missing-balance.csv']) {
     await page.getByRole('button', { name: `Remove ${name}` }).click();
   }
-  await expect(page.getByRole('button', { name: /^Output/ })).toBeDisabled();
+  await expect(page.getByRole('tab', { name: /^Output/ })).toBeDisabled();
 });
 
 test('layout holds with the output step open', async ({ page }, info) => {

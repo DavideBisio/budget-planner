@@ -22,10 +22,17 @@ onStorageProblem(({ kind }) => {
   notice.hidden = false;
 });
 
-// The footer holds the backup, restore and clear-all controls (STOR-3, STOR-4).
-const footer = h('footer', { class: 'site-footer' });
-document.querySelector('main')?.after(footer);
-mountBackup(footer, text => {
+/** Show a message at the top of the page. */
+export function showNotice(text) {
   notice.textContent = text;
   notice.hidden = false;
-});
+}
+
+// The planner's footer holds the backup, restore and clear-all controls (STOR-3, STOR-4). The
+// import page has its own place for them (a page that says `data-own-backup` on its main).
+const main = document.querySelector('main');
+if (main && !('ownBackup' in main.dataset)) {
+  const footer = h('footer', { class: 'site-footer' });
+  main.after(footer);
+  mountBackup(footer, showNotice);
+}

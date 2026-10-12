@@ -59,44 +59,15 @@
   color: var(--accent);
 }
 
+.btn.danger {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--danger-text);
+}
+
 .btn[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-/* Step: numbered item of a guided flow */
-.steps {
-  counter-reset: step;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-3);
-}
-
-.step {
-  counter-increment: step;
-  display: grid;
-  grid-template-columns: var(--tap) minmax(0, 1fr);
-  gap: var(--space-3);
-  align-items: start;
-}
-
-.step::before {
-  content: counter(step);
-  display: grid;
-  place-items: center;
-  width: var(--tap);
-  height: var(--tap);
-  border-radius: 50%;
-  border: 2px solid var(--accent);
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.step[aria-current='step']::before {
-  background: var(--accent);
-  color: var(--accent-text);
 }
 
 /* Tooltip / popover: opens on tap, hover and keyboard focus (see popover.js) */
@@ -301,16 +272,68 @@ mark {
 /* Lists of patterns and checkboxes */
 .pattern-list {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
   margin: 0 0 var(--space-3);
   padding: 0;
   list-style: none;
 }
 
 .pattern-item {
-  padding: var(--space-3);
+  padding: var(--space-1) var(--space-3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.pattern-item[data-open='true'] {
+  padding-bottom: var(--space-3);
+  border-color: var(--accent);
+}
+
+.pattern-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.pattern-toggle {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--tap);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pattern-toggle::before {
+  content: '▸ ';
+  color: var(--accent);
+}
+
+.pattern-item[data-open='true'] .pattern-toggle::before {
+  content: '▾ ';
+}
+
+.pattern-summary {
+  overflow-wrap: anywhere;
+}
+
+.pattern-info {
+  margin: 0;
+}
+
+.pattern-body {
+  margin-top: var(--space-3);
+}
+
+.pattern-body[hidden] {
+  display: none;
 }
 
 .pattern-item .group {
@@ -321,6 +344,7 @@ mark {
 
 .pattern-controls {
   display: flex;
+  flex: none;
   flex-wrap: wrap;
   gap: var(--space-2);
 }
@@ -363,15 +387,48 @@ summary {
 /* Category rows */
 .category-list {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.category-row {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
 .category-main {
   display: flex;
+  align-items: center;
   gap: var(--space-2);
+}
+
+.category-name {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--tap);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.category-name.locked {
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+}
+
+button.category-name:hover {
+  text-decoration: underline;
 }
 
 .category-main input {
@@ -384,11 +441,6 @@ summary {
   background: var(--bg);
   color: var(--text);
   font: inherit;
-}
-
-.category-main input[readonly] {
-  background: transparent;
-  border-style: dashed;
 }
 
 /* Result list: tabs, entries and the details popover (IMP-10) */
@@ -477,4 +529,9 @@ summary {
 
 .handoff-status {
   font-weight: 600;
+}
+
+/* A field hidden by the page must stay hidden although .field sets its own display. */
+.field[hidden] {
+  display: none;
 }

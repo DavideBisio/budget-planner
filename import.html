@@ -12,13 +12,13 @@
         <a href="./import.html" aria-current="page">Import</a>
       </nav>
     </header>
-    <main class="page">
+    <main class="page" data-own-backup>
       <div class="page-head">
         <h1>Import</h1>
         <a class="btn secondary" href="./index.html">Budget Planner</a>
       </div>
       <p class="lead">
-        Turn bank statements into planner cards in seven steps. Your files stay in this browser.
+        Turn bank statements into planner cards in six steps. Your files stay in this browser.
         <span class="popover" data-popover>
           <button
             class="popover-trigger"
@@ -35,26 +35,12 @@
         </span>
       </p>
       <div class="progress">
-        <span class="progress-label" id="progress-label" role="status">0 of 7 steps ready</span>
-        <progress aria-label="Steps ready" max="7" value="0"></progress>
+        <span class="progress-label" id="progress-label" role="status">0 of 6 steps done</span>
+        <progress aria-label="Steps done" max="6" value="0"></progress>
       </div>
-      <div class="columns">
-        <div class="stack">
-          <section class="card" id="settings" aria-labelledby="settings-title">
-            <h2 id="settings-title">Settings file</h2>
-            <div id="settings-body"></div>
-          </section>
-          <ol class="steps" id="steps"></ol>
-        </div>
-        <div class="stack" id="results">
-          <section class="card" id="result-empty" aria-labelledby="result-title">
-            <h2 id="result-title">Result</h2>
-            <p>
-              Choose a sample statement in step 1 or import files in step 2 to see results here.
-            </p>
-          </section>
-        </div>
-      </div>
+      <div class="step-tabs" id="tabs" role="tablist" aria-label="Import steps"></div>
+      <p class="tabs-note" id="tabs-note" role="status" hidden></p>
+      <div id="panels"></div>
     </main>
     <script type="module" src="/src/ui/import.js"></script>
   </body>

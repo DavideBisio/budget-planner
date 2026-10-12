@@ -8,12 +8,12 @@ Requirements: [req/storage.md](../req/storage.md).
 - Keys: `config`, `overrides`, `files` (raw text and names of imported files, ENG-10), `planner`, `handoff`, and `backup:<name>`.
 - Migrations are applied in order on load. Before migrating, the original value is copied to `backup:<name>` and the stored original is not changed; a failing migration leaves the original in use (status `failed`). A value from a newer version is never overwritten.
 - Problems are broadcast with `onStorageProblem`: `full` (quota), `unavailable` (access refused, for example a private window) and `newer`. `shell.js` shows them as a message at the top of every page; the page keeps working in memory.
-- "Clear all data" is a button in the footer of every page. After a confirmation it removes every `budget-planner:` key, backups included, and nothing else, then reloads.
+- "Clear all data" is a button in the footer of the planner page and in the settings card of the import step. After a confirmation it removes every `budget-planner:` key, backups included, and nothing else, then reloads.
 - Issue: #39. Verified by: `tests/unit/storage.test.js`, `tests/unit/schemas.test.js`, `tests/e2e/storage.spec.js`, `tests/e2e/storage-files.spec.js`.
 
 ## STOR-4 Backup and restore
 
-- The footer of every page has "Download backup", a checkbox "Include the imported bank files" (off by default, so raw bank text stays out of the file) and "Restore from a backup file".
+- The planner's footer has "Download backup", a checkbox "Include the imported bank files" (off by default, so raw bank text stays out of the file) and "Restore from a backup file". On the import page the same pieces sit in its steps instead of a footer (IMP-13): download in the output step, load in the import step.
 - `buildBackup` (`src/core/backup.js`) writes one JSON document: `{app: "budget-planner", version: 1, versions: {<section>: n}, data: {config, overrides, planner, files?}}`. Only sections that exist are written. `versions` is the schema version of each section, so an older backup is migrated on restore.
 - `parseBackup` checks the whole file before anything is written: it must be JSON, from this app and not from a newer backup version; every section is migrated with `unwrap`, then validated (configuration with `validateConfig`, the plan with `validatePlanner`, manual changes and files by shape). Any problem refuses the whole file and lists each one by path. Unknown sections are ignored.
 - Restoring asks first ("replace your current ..."), then `saveAll` writes the sections as one: if any cannot be written, every section goes back to what it held. Sections absent from the file (for example the files) are left as they are. The page reloads afterwards.

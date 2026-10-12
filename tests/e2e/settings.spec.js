@@ -1,27 +1,30 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { expectNoHorizontalOverflow, expectTapTargets } from './helpers.js';
+import { expectNoHorizontalOverflow, expectTapTargets, openStep } from './helpers.js';
 
 const SAMPLE_CONFIG = 'data/sample-config.json';
 const JAN = 'tests/fixtures/comma-split.csv';
 const FEB = 'tests/fixtures/missing-balance.csv';
 
-const card = page => page.locator('#settings');
+const card = page => page.locator('#result-settings');
+const load = page => page.getByLabel('Statement files').setInputFiles(JAN);
 const notice = page => card(page).getByRole('status');
 
-test('IMP-13: the configuration exports as a versioned file without any transactions', async ({
+test('IMP-13: the download is one backup with the settings and without any transactions', async ({
   page,
 }) => {
   await page.goto('/import.html');
-  await page.getByRole('button', { name: /^Import/ }).click();
+  await page.getByRole('tab', { name: /^Import/ }).click();
   await page.getByLabel('Statement files').setInputFiles(JAN);
+  await openStep(page, 'Output');
   const download = page.waitForEvent('download');
-  await card(page).getByRole('button', { name: 'Export settings' }).click();
+  await page.getByRole('button', { name: 'Download backup' }).click();
   const file = await download;
-  expect(file.suggestedFilename()).toBe('budget-planner-settings.json');
+  expect(file.suggestedFilename()).toBe('budget-planner-backup.json');
   const text = readFileSync(await file.path(), 'utf8');
-  const config = JSON.parse(text);
-  expect(Object.keys(config).sort()).toEqual([
+  const backup = JSON.parse(text);
+  expect(backup).toMatchObject({ app: 'budget-planner', version: 1 });
+  expect(Object.keys(backup.data.config).sort()).toEqual([
     'cats',
     'filter',
     'parse',
@@ -29,15 +32,51 @@ test('IMP-13: the configuration exports as a versioned file without any transact
     'rules',
     'version',
   ]);
-  expect(config.version).toBe(1);
+  expect(backup.data.files).toBeUndefined();
   expect(text).not.toContain('Payroll');
   expect(text).not.toContain('Landlord');
 });
 
+test('IMP-13: the same file loads back from the import tab, and clear all is there too', async ({
+  page,
+}) => {
+  const storedCats = () =>
+    page.evaluate(
+      () => JSON.parse(localStorage.getItem('budget-planner:config') ?? 'null')?.data.cats,
+    );
+  await page.goto('/import.html');
+  await load(page);
+  const config = JSON.parse(readFileSync(SAMPLE_CONFIG, 'utf8'));
+  config.cats.push('Hobbies');
+  await card(page)
+    .getByLabel('Load settings or a backup from a file')
+    .setInputFiles({
+      name: 'mine.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify(config)),
+    });
+  await expect(notice(page)).toContainText('Settings imported');
+  await openStep(page, 'Output');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download backup' }).click();
+  const path = await (await download).path();
+
+  await openStep(page, 'Import');
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('button', { name: 'Clear all data' }).click();
+  await expect.poll(storedCats).toBeUndefined();
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByLabel('Load settings or a backup from a file').setInputFiles(path);
+  await expect.poll(storedCats).toContain('Hobbies');
+});
+
 test('IMP-13: importing the sample configuration works', async ({ page }) => {
   await page.goto('/import.html');
-  await card(page).getByLabel('Load settings from a file').setInputFiles(SAMPLE_CONFIG);
+  await load(page);
+  await card(page).getByLabel('Load settings or a backup from a file').setInputFiles(SAMPLE_CONFIG);
   await expect(notice(page)).toContainText('Settings imported');
+  await openStep(page, 'Parsing');
   await expect(page.getByLabel('Delimiter')).toHaveValue(',');
 });
 
@@ -45,27 +84,30 @@ test('IMP-13: an imported file replaces the settings and shows up in the steps',
   page,
 }) => {
   await page.goto('/import.html');
+  await load(page);
   const config = JSON.parse(readFileSync(SAMPLE_CONFIG, 'utf8'));
   config.parse.delim = ';';
   config.cats.push('Hobbies');
   await card(page)
-    .getByLabel('Load settings from a file')
+    .getByLabel('Load settings or a backup from a file')
     .setInputFiles({
       name: 'mine.json',
       mimeType: 'application/json',
       buffer: Buffer.from(JSON.stringify(config)),
     });
   await expect(notice(page)).toContainText('Settings imported');
+  await openStep(page, 'Parsing');
   await expect(page.getByLabel('Delimiter')).toHaveValue(';');
 });
 
 test('IMP-13: problems are listed by field path and nothing changes', async ({ page }) => {
   await page.goto('/import.html');
+  await load(page);
   const config = JSON.parse(readFileSync(SAMPLE_CONFIG, 'utf8'));
   config.payees = ['(open'];
   config.parse.delim = 'x';
   await card(page)
-    .getByLabel('Load settings from a file')
+    .getByLabel('Load settings or a backup from a file')
     .setInputFiles({
       name: 'broken.json',
       mimeType: 'application/json',
@@ -75,13 +117,14 @@ test('IMP-13: problems are listed by field path and nothing changes', async ({ p
   await expect(problems).toContainText('parse.delim');
   await expect(problems).toContainText('payees[0]');
   await expect(problems).not.toContainText('Invalid regular expression');
+  await openStep(page, 'Parsing');
   await expect(page.getByLabel('Delimiter')).toHaveValue(',');
 });
 
 test('IMP-13: a file that is not JSON is refused with a plain message', async ({ page }) => {
   await page.goto('/import.html');
   await card(page)
-    .getByLabel('Load settings from a file')
+    .getByLabel('Load settings or a backup from a file')
     .setInputFiles({
       name: 'notes.txt',
       mimeType: 'text/plain',
@@ -92,15 +135,20 @@ test('IMP-13: a file that is not JSON is refused with a plain message', async ({
 
 test('IMP-14: settings persist between visits', async ({ page }) => {
   await page.goto('/import.html');
+  await load(page);
+  await openStep(page, 'Parsing');
   await page.getByLabel('Delimiter').selectOption(';');
   await page.getByLabel('Description column').fill('Descrizione');
   await page.reload();
+  await openStep(page, 'Parsing');
   await expect(page.getByLabel('Delimiter')).toHaveValue(';');
   await expect(page.getByLabel('Description column')).toHaveValue('Descrizione');
 });
 
 test('IMP-14: settings and manual changes persist in their own keys', async ({ page }) => {
   await page.goto('/import.html');
+  await load(page);
+  await openStep(page, 'Parsing');
   await page.getByLabel('Delimiter').selectOption(';');
   const config = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('budget-planner:config')),
@@ -109,8 +157,9 @@ test('IMP-14: settings and manual changes persist in their own keys', async ({ p
   expect(config.data.parse.delim).toBe(';');
 
   await page.getByLabel('Delimiter').selectOption(',');
-  await page.getByRole('button', { name: /^Import/ }).click();
-  await page.getByLabel('Statement files').setInputFiles([JAN, FEB]);
+  await openStep(page, 'Import');
+  await page.getByLabel('Statement files').setInputFiles(FEB);
+  await openStep(page, 'Output');
   const row = page.locator('#result-result .result-item', { hasText: 'Sample Landlord' });
   await row.getByRole('button', { name: 'Change Sample Landlord' }).click();
   await row.getByLabel('Kind').selectOption('saving');
@@ -134,6 +183,8 @@ test('IMP-14: settings from a newer version are left untouched and the user is t
   });
   await page.goto('/import.html');
   await expect(notice(page)).toContainText('newer version');
+  await load(page);
+  await openStep(page, 'Parsing');
   await page.getByLabel('Delimiter').selectOption(';');
   const stored = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('budget-planner:config')),
@@ -152,6 +203,8 @@ test('IMP-14: unreadable stored settings fall back to the defaults with a notice
   });
   await page.goto('/import.html');
   await expect(notice(page)).toContainText('could not be read');
+  await load(page);
+  await openStep(page, 'Parsing');
   await expect(page.getByLabel('Delimiter')).toHaveValue(',');
 });
 

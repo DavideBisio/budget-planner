@@ -48,3 +48,14 @@ export async function countColumns(page) {
 export async function expectColumns(page, expected) {
   expect(await countColumns(page)).toBe(expected);
 }
+
+/** Open a step by its tab. */
+export const openStep = (page, title) =>
+  page.getByRole('tab', { name: new RegExp(`^${title}`) }).click();
+
+/** Load statement files in the first step, then open the parsing step. */
+export async function openParsing(page, files = 'data/sample-bank-report.csv') {
+  await page.goto('/import.html');
+  await page.getByLabel('Statement files').setInputFiles(files);
+  await openStep(page, 'Parsing');
+}

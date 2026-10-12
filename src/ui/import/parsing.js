@@ -1,4 +1,4 @@
-// Step 1 (IMP-3): parsing settings, suggestions from a sample file, and a live preview.
+// Step 2 (IMP-3): parsing settings, suggestions from the first imported file, and a live preview.
 import { applySuggestion, sniffParse, suggestionLines } from '../../core/sniff.js';
 import { parseStatement } from '../../core/parser.js';
 import { h, uid, fill } from '../dom.js';
@@ -103,8 +103,8 @@ function previewTable(result) {
   );
 }
 
-/** The text to preview and to sniff: the chosen sample, else the first imported file. */
-const subjectOf = ({ sample, sources }) => sample ?? sources[0] ?? null;
+/** The text to preview and to sniff: the first imported file. */
+const subjectOf = ({ sources }) => sources[0] ?? null;
 
 export function mountParsing(body, store, results) {
   const set = (path, value) => updateConfig(store, ['parse', ...path], value);
@@ -143,31 +143,10 @@ export function mountParsing(body, store, results) {
     }),
   };
 
-  // Suggestions come from a sample file and are never applied until the user says so.
-  const sampleId = uid('sample');
+  // Suggestions come from the first imported file and are never applied until the user says so.
   const suggestions = h('div', { class: 'suggestions', 'aria-live': 'polite' });
-  const sampleField = h(
-    'div',
-    { class: 'field' },
-    h('label', { for: sampleId }, 'Sample statement'),
-    h('input', {
-      type: 'file',
-      id: sampleId,
-      accept: '.csv,.txt,.tsv,text/csv,text/plain',
-      onchange: async event => {
-        const [file] = event.target.files;
-        if (file) store.set({ sample: { name: file.name, text: await file.text() } });
-      },
-    }),
-    h(
-      'span',
-      { class: 'hint' },
-      'Used to suggest settings and to preview. It stays in this browser.',
-    ),
-  );
 
   body.append(
-    sampleField,
     suggestions,
     group('Format', ...['delim', 'decimal', 'dateFmt'].map(k => fields[k].node)),
     group('Columns', ...COLUMNS.map(([k]) => fields[`cols.${k}`].node)),

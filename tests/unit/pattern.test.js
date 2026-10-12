@@ -7,6 +7,7 @@ import {
   explainPatternError,
   parseCapture,
   parsePattern,
+  summarizePattern,
   testPattern,
 } from '../../src/core/pattern.js';
 
@@ -227,5 +228,27 @@ describe('testPattern (IMP-5)', () => {
   it('handles an empty pattern and no texts', () => {
     expect(testPattern('', texts)).toMatchObject({ count: 0, total: 4 });
     expect(testPattern('a', [])).toMatchObject({ count: 0, total: 0, matches: [], misses: [] });
+  });
+});
+
+describe('summarizePattern (IMP-5)', () => {
+  it('says in words what a pattern looks for', () => {
+    expect(summarizePattern('market')).toBe('contains "market"');
+    expect(summarizePattern('^market')).toBe('starts with "market"');
+    expect(summarizePattern('market$')).toBe('ends with "market"');
+    expect(summarizePattern('^market$')).toBe('is exactly "market"');
+    expect(summarizePattern('payroll|acme')).toBe('any of: payroll, acme');
+  });
+
+  it('describes payee patterns by the words around the name', () => {
+    const between = buildCapture({ mode: 'between', before: 'paid to', after: 'ref' });
+    expect(summarizePattern(between, { capture: true })).toBe('text between "paid to" and "ref"');
+    const after = buildCapture({ mode: 'after', before: 'paid to' });
+    expect(summarizePattern(after, { capture: true })).toBe('text after "paid to"');
+  });
+
+  it('shows an advanced expression as it is and an empty pattern as a prompt', () => {
+    expect(summarizePattern('^a.+b\\d')).toBe('expression ^a.+b\\d');
+    expect(summarizePattern('')).toBe('not set yet');
   });
 });
