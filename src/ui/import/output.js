@@ -1,11 +1,11 @@
-// Step 6 (IMP-12, IMP-13): download the settings (left); preview the planner cards with totals,
+// Step 6 (IMP-12, IMP-13): download the backup with the settings (left); preview the planner cards with totals,
 // choose replace or merge, and send the cards to the planner or download them (right). The payload itself is built in core/handoff.js.
 import { buildHandoff, describeHandoff } from '../../core/handoff.js';
 import { h, uid, fill } from '../dom.js';
 import { formatCents } from '../format.js';
 import { downloadText } from '../download.js';
 import { sendToPlanner } from '../handoff.js';
-import { exportSettingsButton } from './settings.js';
+import { backupDownload } from '../backup.js';
 
 const KIND_LABEL = { income: 'Income', expense: 'Expense', saving: 'Saving' };
 
@@ -44,9 +44,12 @@ export function mountOutput(body, store, results) {
     'Download JSON',
   );
   body.append(
-    h('p', {}, 'Keep your categories, rules and settings in a file to load next time.'),
-    h('p', { class: 'hint' }, 'The file never contains your transactions.'),
-    h('div', { class: 'pattern-controls' }, exportSettingsButton(store)),
+    h('p', {}, 'Keep your categories, rules, settings and planner in one file to load next time.'),
+    h('p', { class: 'hint' }, 'Your bank transactions are not in it unless you tick the box.'),
+    backupDownload(() => {
+      const { config, overrides } = store.get();
+      return { config, overrides };
+    }).node,
   );
 
   const card = results.card('output', 'Send to the planner');

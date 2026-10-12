@@ -128,8 +128,13 @@ test('STOR-4: a file that is not a backup is refused', async ({ page }, info) =>
   expect(await storedPlan(page)).toEqual(PLAN);
 });
 
-test('STOR-4: the backup controls are on the import page too', async ({ page }) => {
+test('STOR-4: the import page has the backup in its tabs and no footer', async ({ page }) => {
   await page.goto('/import.html');
+  await expect(page.locator('footer.site-footer')).toHaveCount(0);
+  await expect(page.getByLabel('Load settings or a backup from a file')).toBeAttached();
+  await expect(page.getByRole('button', { name: 'Clear all data' })).toBeVisible();
+  await page.getByLabel('Statement files').setInputFiles('tests/fixtures/comma-split.csv');
+  await page.getByRole('tab', { name: /^Output/ }).click();
   await expect(page.getByRole('button', { name: 'Download backup' })).toBeVisible();
-  await expect(page.getByLabel('Restore from a backup file')).toBeAttached();
+  await expect(page.getByLabel('Include the imported bank files')).not.toBeChecked();
 });

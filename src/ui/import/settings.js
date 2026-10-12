@@ -1,11 +1,11 @@
 // The settings file and persistence (IMP-13, IMP-14): export and import of the configuration, and
 // saving the configuration and the manual changes in the browser between visits.
-import { exportConfig, importConfig } from '../../core/config-file.js';
+import { importConfig } from '../../core/config-file.js';
 import { defaultConfig, migrateConfig, validateConfig } from '../../core/config.js';
 import { SCHEMAS } from '../../core/schemas.js';
 import { emptyOverrides, isOverrides } from '../../core/overrides.js';
+import { clearAllButton, isBackupText, restoreBackup, restoreProblems } from '../backup.js';
 import { h, uid, fill } from '../dom.js';
-import { downloadText } from '../download.js';
 import { load, save } from '../storage.js';
 
 const MESSAGES = {
@@ -40,40 +40,40 @@ export function loadSettings() {
   return { config, overrides, notices };
 }
 
-/** The button that saves the configuration (never the transactions) as a file. */
-export function exportSettingsButton(store) {
-  return h(
-    'button',
-    {
-      class: 'btn',
-      type: 'button',
-      onclick: () => downloadText('budget-planner-settings.json', exportConfig(store.get().config)),
-    },
-    'Download settings (JSON)',
-  );
-}
-
-export function mountSettings(results, store, notices) {
-  const body = results.card('settings', 'Settings file');
+export function mountSettings(results, store, notices, showNotice) {
+  const body = results.card('settings', 'Settings and backup');
   results.show('settings', true);
   const messages = [...notices];
   let imported = '';
   let problems = [];
+  let restored = [];
 
   const status = h('div', { role: 'status' });
-  const list = h('ul', { class: 'plain', role: 'alert' });
+  const list = h('div', { role: 'alert' });
   const fileId = uid('settings');
   const render = () => {
     fill(status, ...[...messages, imported].filter(Boolean).map(text => h('p', {}, text)));
-    fill(list, ...problems.map(e => h('li', {}, e.path ? `${e.path}: ${e.message}` : e.message)));
-    list.hidden = problems.length === 0;
+    fill(
+      list,
+      ...(problems.length
+        ? [
+            h(
+              'ul',
+              { class: 'plain' },
+              problems.map(e => h('li', {}, e.path ? `${e.path}: ${e.message}` : e.message)),
+            ),
+          ]
+        : []),
+      ...restored,
+    );
+    list.hidden = problems.length === 0 && restored.length === 0;
   };
 
   body.append(
     h(
       'div',
       { class: 'field' },
-      h('label', { for: fileId }, 'Load settings from a file'),
+      h('label', { for: fileId }, 'Load settings or a backup from a file'),
       h('input', {
         type: 'file',
         id: fileId,
@@ -82,7 +82,17 @@ export function mountSettings(results, store, notices) {
           const [file] = event.target.files;
           event.target.value = '';
           if (!file) return;
-          const result = importConfig(await file.text());
+          const text = await file.text();
+          problems = [];
+          restored = [];
+          imported = '';
+          if (isBackupText(text)) {
+            const refused = restoreBackup(text);
+            restored = refused.length ? restoreProblems(refused) : [];
+            render();
+            return;
+          }
+          const result = importConfig(text);
           problems = result.errors;
           imported = result.config ? 'Settings imported.' : '';
           if (result.config) store.set({ config: result.config });
@@ -92,11 +102,12 @@ export function mountSettings(results, store, notices) {
       h(
         'span',
         { class: 'hint' },
-        'The file holds your rules and settings only, never your transactions.',
+        'A settings file holds your rules and settings only. A backup also holds the planner and your manual changes.',
       ),
     ),
     status,
     list,
+    h('div', { class: 'field' }, clearAllButton(showNotice)),
   );
   render();
 

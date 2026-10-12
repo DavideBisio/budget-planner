@@ -1,4 +1,4 @@
-import './shell.js';
+import { showNotice } from './shell.js';
 import './styles/main.css';
 import { initPopovers } from './popover.js';
 import { mountStepper } from './import/stepper.js';
@@ -40,7 +40,7 @@ const results = createResults(panes, {
   rules: 'categories',
   result: ['output', 'left'],
 });
-mountSettings(results, store, notices);
+mountSettings(results, store, notices, showNotice);
 mountImporting(panes.import.left, store, results);
 mountParsing(panes.parsing.left, store, results);
 mountCategories(panes.categories.left, store, results);

@@ -38,11 +38,11 @@ test('IMP-12: the preview follows manual changes', async ({ page }) => {
 
 test('IMP-12: the mode decides what the confirmation says', async ({ page }) => {
   await expect(body(page).getByLabel('Replace the planner’s cards')).toBeChecked();
-  await expect(body(page).getByRole('status')).toContainText(
+  await expect(page.locator('#result-output').getByRole('status')).toContainText(
     'current cards will be replaced by 2 recurring cards and 1 one-time card',
   );
   await body(page).getByLabel('Add to the planner’s cards').check();
-  await expect(body(page).getByRole('status')).toContainText(
+  await expect(page.locator('#result-output').getByRole('status')).toContainText(
     '2 recurring cards and 1 one-time card will be added to the planner',
   );
 });
@@ -63,7 +63,7 @@ test('IMP-12: the payload downloads as JSON with cards only', async ({ page }) =
 
 test('IMP-12: sending stores the payload for the planner and says so', async ({ page }) => {
   await body(page).getByRole('button', { name: 'Send to planner' }).click();
-  await expect(body(page).getByRole('status')).toContainText('Cards sent');
+  await expect(page.locator('#result-output').getByRole('status')).toContainText('Cards sent');
   await expect(body(page).getByRole('link', { name: 'Open the planner' })).toHaveAttribute(
     'href',
     './index.html',
