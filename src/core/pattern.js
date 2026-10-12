@@ -115,6 +115,26 @@ export function parseCapture(pattern) {
   return after ? { mode: 'between', before, after } : advanced;
 }
 
+const SUMMARY_MODES = {
+  contains: 'contains',
+  starts: 'starts with',
+  ends: 'ends with',
+  equals: 'is exactly',
+};
+
+/** A pattern in a few plain words, for a compact list; an advanced expression is shown as is. */
+export function summarizePattern(pattern, { capture = false } = {}) {
+  if (pattern === '') return 'not set yet';
+  const parsed = capture ? parseCapture(pattern) : parsePattern(pattern);
+  if (parsed.mode === 'advanced') return `expression ${parsed.text}`;
+  if (parsed.mode === 'anyOf') return `any of: ${parsed.words.join(', ')}`;
+  if (parsed.mode === 'between') {
+    return `text between "${parsed.before}" and "${parsed.after}"`;
+  }
+  if (parsed.mode === 'after') return `text after "${parsed.before}"`;
+  return `${SUMMARY_MODES[parsed.mode]} "${parsed.text}"`;
+}
+
 const EXPLANATIONS = [
   [
     /unterminated group|unterminated parenthetical|missing \)/,

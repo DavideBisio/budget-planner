@@ -1,5 +1,6 @@
-// Step 6 (IMP-9): add, rename and delete categories. Rules follow a rename; deleting a category
-// that rules use asks where they go. The logic is in core/categories.js.
+// Step 3 (IMP-9): add, rename and delete categories as a compact list: name, red cross, rule
+// count. Clicking a name edits it (the cross becomes Save). Rules follow a rename; deleting a
+// category that rules use asks where they go. The logic is in core/categories.js.
 import {
   addCategory,
   categoryUsage,
@@ -15,6 +16,7 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 export function mountCategories(body, store, results) {
   const state = () => store.get();
   let deleting = null;
+  let editing = null;
   let message = '';
 
   /** Apply a core result: store the new configuration, or show why it was refused. */
@@ -63,26 +65,46 @@ export function mountCategories(body, store, results) {
     const { config } = state();
     const locked = isProtectedCategory(name);
     const used = categoryUsage(config, name);
+    const note = locked ? 'for unmatched transactions' : plural(used, 'rule');
+    const edit = () => {
+      message = '';
+      deleting = null;
+      editing = name;
+      render(state());
+      list.querySelector(`[data-category="${CSS.escape(name)}"] input`)?.focus();
+    };
+    const close = () => {
+      editing = null;
+      render(state());
+      list.querySelector(`[data-category="${CSS.escape(name)}"] .category-name`)?.focus();
+    };
+    const save = value => {
+      if (value.trim() === name) return close();
+      const outcome = renameCategory(state().config, name, value);
+      if (outcome.error) {
+        message = outcome.error;
+        render(state());
+        list.querySelector(`[data-category="${CSS.escape(name)}"] input`)?.focus();
+        return undefined;
+      }
+      editing = null;
+      return apply(outcome);
+    };
     const input = h('input', {
       type: 'text',
       value: name,
-      readOnly: locked,
       'aria-label': `Name of ${name}`,
-      onchange: event => {
-        if (!apply(renameCategory(state().config, name, event.target.value))) {
-          event.target.value = name;
-        }
+      onkeydown: event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          save(event.target.value);
+        } else if (event.key === 'Escape') close();
       },
     });
-    const note = locked
-      ? 'Used for unmatched transactions'
-      : used
-        ? `Used by ${plural(used, 'rule')}`
-        : 'Not used by any rule';
     const remove = h(
       'button',
       {
-        class: 'btn secondary',
+        class: 'btn danger',
         type: 'button',
         disabled: locked,
         'aria-label': `Delete ${name}`,
@@ -96,8 +118,25 @@ export function mountCategories(body, store, results) {
           }
         },
       },
-      'Delete',
+      '×',
     );
+    const saveButton = h(
+      'button',
+      { class: 'btn', type: 'button', onclick: () => save(input.value) },
+      'Save',
+    );
+    const label = locked
+      ? h('span', { class: 'category-name locked' }, name)
+      : h(
+          'button',
+          {
+            class: 'category-name',
+            type: 'button',
+            'aria-label': `Edit ${name}`,
+            onclick: edit,
+          },
+          name,
+        );
     const others = config.cats.filter(c => c !== name);
     const selectId = uid('move');
     const confirm =
@@ -154,8 +193,9 @@ export function mountCategories(body, store, results) {
     const item = h(
       'li',
       { class: 'category-row' },
-      h('div', { class: 'category-main' }, input, remove),
-      h('span', { class: 'hint' }, note),
+      editing === name
+        ? h('div', { class: 'category-main' }, input, saveButton)
+        : h('div', { class: 'category-main' }, label, h('span', { class: 'hint' }, note), remove),
       confirm,
     );
     item.dataset.category = name;

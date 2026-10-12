@@ -18,12 +18,12 @@ test.beforeEach(async ({ page }) => {
 
 test('IMP-9: lists the categories with the rules that use them', async ({ page }) => {
   await expect(rows(page)).toHaveCount(8);
-  await expect(row(page, 'Salary')).toContainText('Used by 1 rule');
-  await expect(row(page, 'Own transfers')).toContainText('Not used by any rule');
+  await expect(row(page, 'Salary')).toContainText('1 rule');
+  await expect(row(page, 'Own transfers')).toContainText('0 rules');
   const fallback = row(page, 'Other income');
   await expect(fallback).toContainText('unmatched');
   await expect(fallback.getByRole('button', { name: 'Delete Other income' })).toBeDisabled();
-  await expect(fallback.getByLabel('Name of Other income')).toHaveAttribute('readonly', '');
+  await expect(fallback.getByRole('button', { name: 'Edit Other income' })).toHaveCount(0);
 });
 
 test('IMP-9: a category can be added; a duplicate is refused with a message', async ({ page }) => {
@@ -40,10 +40,12 @@ test('IMP-9: a category can be added; a duplicate is refused with a message', as
 });
 
 test('IMP-9: renaming a category updates the rules that use it', async ({ page }) => {
+  await page.getByRole('button', { name: 'Edit Housing' }).click();
   const input = page.getByLabel('Name of Housing');
   await input.fill('Home');
-  await input.press('Enter');
-  await expect(row(page, 'Home')).toContainText('Used by 1 rule');
+  await expect(page.getByRole('button', { name: 'Delete Housing' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(row(page, 'Home')).toContainText('1 rule');
   await page.getByRole('tab', { name: /^Categories/ }).click();
   await expect(
     page
@@ -58,11 +60,13 @@ test('IMP-9: renaming a category updates the rules that use it', async ({ page }
 });
 
 test('IMP-9: a rename to an existing name is refused and the name goes back', async ({ page }) => {
+  await page.getByRole('button', { name: 'Edit Housing' }).click();
   const input = page.getByLabel('Name of Housing');
   await input.fill('Utilities');
   await input.press('Enter');
   await expect(page.getByRole('alert')).toContainText('already exists');
-  await expect(page.getByLabel('Name of Housing')).toHaveValue('Housing');
+  await input.press('Escape');
+  await expect(row(page, 'Housing').getByRole('button', { name: 'Edit Housing' })).toBeVisible();
 });
 
 test('IMP-9: an unused category is deleted at once', async ({ page }) => {
@@ -81,7 +85,7 @@ test('IMP-9: deleting a category in use asks where its rules go', async ({ page 
   await confirm.getByLabel('Move the rules to').selectOption('Utilities');
   await confirm.getByRole('button', { name: 'Move rules and delete' }).click();
   await expect(rows(page)).toHaveCount(7);
-  await expect(row(page, 'Utilities')).toContainText('Used by 2 rules');
+  await expect(row(page, 'Utilities')).toContainText('2 rules');
 });
 
 test('IMP-9: the result lists transactions and totals per category', async ({ page }) => {

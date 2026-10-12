@@ -44,6 +44,10 @@ export function mountRules(body, store, results) {
     );
     return {
       node,
+      summary: rule =>
+        [rule.cat, rule.kind ? KINDS.find(([v]) => v === rule.kind)?.[1] : '']
+          .filter(Boolean)
+          .join(', '),
       update(rule, at) {
         const cats = state().config.cats;
         const known = cats.includes(rule.cat);
